@@ -33,7 +33,7 @@ Once configured with your own values, you can simply run a script to begin the b
 
 Personally, I schedule it to run every week with [anacron](https://en.wikipedia.org/wiki/Anacron). This way, I don't need to remember running it.
 
-If you are using the default folder names, the newest data backup will be inside '<dst>/data'. The second newest backup will be inside '<dst>/backup/backup.1', next will be inside '<dst>/backup/backup.2' and so on.
+If you are using the default folder names, the newest data backup will be inside `<dst>/data`. The second newest backup will be inside `<dst>/backup/backup.1`, next will be inside `<dst>/backup/backup.2` and so on.
 
 
 ## References
