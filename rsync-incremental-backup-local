@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Configuration variables (change as you wish)
+src="/path/to/source"
+dst="/path/to/target"
+backupDepth=7
+pathBak0="data"
+pathBakN="backup"
+nameBakN="backup"
+logName="rsync-incremental-backup_$(date +%d-%m-%Y_%H-%M).log"
+tempLogPath="/tmp"
+logFolderName="log"
+
+# Combinate previously defined variables for use (don't touch this)
+bak0="${dst}/${pathBak0}"
+logPath="${dst}/${pathBakN}/${logFolderName}"
+logFile="${tempLogPath}/${logName}"
+
+# Prepare backup paths
+i=1
+while [ $i -le $backupDepth ]
+do
+	export bak$i="${dst}/${pathBakN}/${nameBakN}.$i"
+	true $((i = i + 1))
+done
+true $((i = i - 1))
+
+# Prepare paths at destination
+mkdir -p ${dst} ${logPath}
+
+# Remove the oldest backup if exists
+bak="bak$i"
+rm -rf ${!bak}
+
+# Rotate the previous backups
+while [ $i -gt 0 ]
+do
+	bakNewPath="bak$i"
+	true $((i = i - 1))
+	bakOldPath="bak$i"
+	mv ${!bakOldPath} ${!bakNewPath}
+done
+
+# Do the magic!
+rsync -avhP --delete --link-dest=${bak1}/ --log-file=${logFile} ${src}/ ${bak0}/
+
+# Send the complete logfile to destination
+scp ${logFile} ${logPath}
+rm ${logFile}
