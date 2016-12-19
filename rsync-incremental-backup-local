@@ -42,7 +42,7 @@ do
 done
 
 # Do the magic!
-rsync -avhP --delete --link-dest=${bak1}/ --log-file=${logFile} ${src}/ ${bak0}/
+rsync -acWvh --delete --link-dest=${bak1}/ --log-file=${logFile} ${src}/ ${bak0}/
 
 # Send the complete logfile to destination
 scp ${logFile} ${logPath}

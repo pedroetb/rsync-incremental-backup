@@ -48,7 +48,7 @@ do
 done
 
 # Do the magic!
-rsync -avhP --delete --link-dest=${bak1}/ --log-file=${logFile} ${src}/ ${remoteBak0}/
+rsync -azcvh --delete --no-W --link-dest=${bak1}/ --log-file=${logFile} ${src}/ ${remoteBak0}/
 
 # Send the complete logfile to destination
 scp ${logFile} ${remoteLogPath}
