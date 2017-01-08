@@ -4,17 +4,29 @@
 src="/path/to/source"
 dst="/path/to/target"
 backupDepth=7
+timeout=1800
 pathBak0="data"
+partialFolderName=".rsync-partial"
 pathBakN="backup"
 nameBakN="backup"
-logName="rsync-incremental-backup_$(date +%d-%m-%Y_%H-%M).log"
+logName="rsync-incremental-backup_$(date -Is).log"
 tempLogPath="/tmp"
 logFolderName="log"
 
 # Combinate previously defined variables for use (don't touch this)
 bak0="${dst}/${pathBak0}"
+partialFolderPath="${dst}/${partialFolderName}"
 logPath="${dst}/${pathBakN}/${logFolderName}"
 logFile="${tempLogPath}/${logName}"
+
+# Prepare log file
+touch ${logFile}
+
+echo -e "********************************" | tee -a ${logFile}
+echo -e "*                              *" | tee -a ${logFile}
+echo -e "*   rsync-incremental-backup   *" | tee -a ${logFile}
+echo -e "*                              *" | tee -a ${logFile}
+echo -e "********************************" | tee -a ${logFile}
 
 # Prepare backup paths
 i=1
@@ -23,27 +35,67 @@ do
 	export bak$i="${dst}/${pathBakN}/${nameBakN}.$i"
 	true $((i = i + 1))
 done
-true $((i = i - 1))
+
+# Prepare rsync configuration
+rsyncFlags="-achv --info=progress2 --timeout=${timeout} --delete --partial-dir=../${partialFolderName} \
+--link-dest=${bak1}/ --log-file=${logFile}"
+
+echo -e "\n[$(date -Is)] You are going to backup" | tee -a ${logFile}
+echo -e "\tfrom:  ${src}" | tee -a ${logFile}
+echo -e "\tto:    ${bak0}" | tee -a ${logFile}
+echo -e "\tflags: ${rsyncFlags}" | tee -a ${logFile}
+
+# Rotate backups if last rsync succeeded ..
+if [ ! -d ${partialFolderPath} ]
+then
+	# .. and there is previous data
+	if [ -d ${bak0} ]
+	then
+		echo -e "\n[$(date -Is)] Backups rotation begins" | tee -a ${logFile}
+
+		true $((i = i - 1))
+
+		# Remove the oldest backup if exists
+		bak="bak$i"
+		rm -rf ${!bak}
+
+		# Rotate the previous backups
+		while [ $i -gt 0 ]
+		do
+			bakNewPath="bak$i"
+			true $((i = i - 1))
+			bakOldPath="bak$i"
+			if [ -d ${!bakOldPath} ]
+			then
+				mv ${!bakOldPath} ${!bakNewPath}
+			fi
+		done
+
+		echo -e "[$(date -Is)] Backups rotation finished\n" | tee -a ${logFile}
+	else
+		echo -e "\n[$(date -Is)] No previous data found, there is no backups to be rotated\n" | tee -a ${logFile}
+	fi
+else
+	echo -e "\n[$(date -Is)] Partially transferred files found, backups will not be rotated\n" | tee -a ${logFile}
+fi
 
 # Prepare paths at destination
 mkdir -p ${dst} ${logPath}
 
-# Remove the oldest backup if exists
-bak="bak$i"
-rm -rf ${!bak}
+echo -e "[$(date -Is)] Backup begins\n" | tee -a ${logFile}
 
-# Rotate the previous backups
-while [ $i -gt 0 ]
-do
-	bakNewPath="bak$i"
-	true $((i = i - 1))
-	bakOldPath="bak$i"
-	mv ${!bakOldPath} ${!bakNewPath}
-done
+# Do the backup
+rsync ${rsyncFlags} ${src}/ ${bak0}/
 
-# Do the magic!
-rsync -acWvh --delete --link-dest=${bak1}/ --log-file=${logFile} ${src}/ ${bak0}/
+# Clear unneeded partials if rsync succeeded
+if [ "$?" -eq "0" ]
+then
+	echo -e "\n[$(date -Is)] Backup completed successfully\n" | tee -a ${logFile}
 
-# Send the complete logfile to destination
-scp ${logFile} ${logPath}
-rm ${logFile}
+	rm -rf ${partialFolderPath}
+else
+	echo -e "\n[$(date -Is)] Backup failed, try again later\n" | tee -a ${logFile}
+fi
+
+# Send the complete log file to destination
+mv ${logFile} ${logPath}
