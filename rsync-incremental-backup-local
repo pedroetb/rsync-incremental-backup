@@ -7,15 +7,17 @@ backupDepth=7
 timeout=1800
 pathBak0="data"
 partialFolderName=".rsync-partial"
+rotationLockFileName=".rsync-rotation-lock"
 pathBakN="backup"
 nameBakN="backup"
-logName="rsync-incremental-backup_$(date -Is).log"
+logName="rsync-incremental-backup_$(date -Id)_$(date +%H-%M-%S).log"
 tempLogPath="/tmp"
 logFolderName="log"
 
 # Combinate previously defined variables for use (don't touch this)
 bak0="${dst}/${pathBak0}"
 partialFolderPath="${dst}/${partialFolderName}"
+rotationLockFilePath="${dst}/${rotationLockFileName}"
 logPath="${dst}/${pathBakN}/${logFolderName}"
 logFile="${tempLogPath}/${logName}"
 
@@ -46,7 +48,7 @@ echo -e "\tto:    ${bak0}" | tee -a ${logFile}
 echo -e "\tflags: ${rsyncFlags}" | tee -a ${logFile}
 
 # Rotate backups if last rsync succeeded ..
-if [ ! -d ${partialFolderPath} ]
+if ([ ! -d ${partialFolderPath} ] || [ ! -e ${rotationLockFilePath} ])
 then
 	# .. and there is previous data
 	if [ -d ${bak0} ]
@@ -76,11 +78,14 @@ then
 		echo -e "\n[$(date -Is)] No previous data found, there is no backups to be rotated\n" | tee -a ${logFile}
 	fi
 else
-	echo -e "\n[$(date -Is)] Partially transferred files found, backups will not be rotated\n" | tee -a ${logFile}
+	echo -e "\n[$(date -Is)] Last backup failed, backups will not be rotated\n" | tee -a ${logFile}
 fi
 
 # Prepare paths at destination
 mkdir -p ${dst} ${logPath}
+
+# Set rotation lock file to detect in next run when backup fails
+touch ${rotationLockFilePath}
 
 echo -e "[$(date -Is)] Backup begins\n" | tee -a ${logFile}
 
@@ -92,7 +97,7 @@ if [ "$?" -eq "0" ]
 then
 	echo -e "\n[$(date -Is)] Backup completed successfully\n" | tee -a ${logFile}
 
-	rm -rf ${partialFolderPath}
+	rm -rf ${partialFolderPath} ${rotationLockFilePath}
 else
 	echo -e "\n[$(date -Is)] Backup failed, try again later\n" | tee -a ${logFile}
 fi
