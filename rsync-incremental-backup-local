@@ -48,7 +48,7 @@ echo -e "\tto:    ${bak0}" | tee -a ${logFile}
 echo -e "\tflags: ${rsyncFlags}" | tee -a ${logFile}
 
 # Rotate backups if last rsync succeeded ..
-if ([ ! -d ${partialFolderPath} ] || [ ! -e ${rotationLockFilePath} ])
+if ([ ! -d ${partialFolderPath} ] && [ ! -e ${rotationLockFilePath} ])
 then
 	# .. and there is previous data
 	if [ -d ${bak0} ]

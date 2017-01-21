@@ -52,7 +52,7 @@ echo -e "\tto:    ${remoteBak0}" | tee -a ${logFile}
 echo -e "\tflags: ${rsyncFlags}" | tee -a ${logFile}
 
 # Rotate backups if last rsync succeeded ..
-if (ssh ${remote} "[ ! -d ${partialFolderPath} ] || [ ! -e ${rotationLockFilePath} ]")
+if (ssh ${remote} "[ ! -d ${partialFolderPath} ] && [ ! -e ${rotationLockFilePath} ]")
 then
 	# .. and there is previous data
 	if (ssh ${remote} "[ -d ${bak0} ]")
