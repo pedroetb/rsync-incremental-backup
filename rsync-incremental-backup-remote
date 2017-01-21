@@ -43,7 +43,7 @@ do
 done
 
 # Prepare rsync configuration
-rsyncFlags="-achvz --info=progress2 --timeout=${timeout} --delete --no-W --partial-dir=../${partialFolderName} \
+rsyncFlags="-achvz --info=progress2 --timeout=${timeout} --delete --no-W --partial-dir=${partialFolderName} \
 --link-dest=${bak1}/ --log-file=${logFile}"
 
 echo -e "\n[$(date -Is)] You are going to backup" | tee -a ${logFile}
