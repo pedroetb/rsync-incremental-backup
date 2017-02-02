@@ -24,11 +24,15 @@ logFile="${tempLogPath}/${logName}"
 # Prepare log file
 touch ${logFile}
 
-echo -e "********************************" | tee -a ${logFile}
-echo -e "*                              *" | tee -a ${logFile}
-echo -e "*   rsync-incremental-backup   *" | tee -a ${logFile}
-echo -e "*                              *" | tee -a ${logFile}
-echo -e "********************************" | tee -a ${logFile}
+writeToLog() {
+	echo -e "$1" | tee -a ${logFile}
+}
+
+writeToLog "********************************"
+writeToLog "*                              *"
+writeToLog "*   rsync-incremental-backup   *"
+writeToLog "*                              *"
+writeToLog "********************************"
 
 # Prepare backup paths
 i=1
@@ -42,10 +46,10 @@ done
 rsyncFlags="-achv --info=progress2 --timeout=${timeout} --delete --partial-dir=${partialFolderPath} \
 --link-dest=${bak1}/ --log-file=${logFile}"
 
-echo -e "\n[$(date -Is)] You are going to backup" | tee -a ${logFile}
-echo -e "\tfrom:  ${src}" | tee -a ${logFile}
-echo -e "\tto:    ${bak0}" | tee -a ${logFile}
-echo -e "\tflags: ${rsyncFlags}" | tee -a ${logFile}
+writeToLog "\n[$(date -Is)] You are going to backup"
+writeToLog "\tfrom:  ${src}"
+writeToLog "\tto:    ${bak0}"
+writeToLog "\tflags: ${rsyncFlags}"
 
 # Rotate backups if last rsync succeeded ..
 if ([ ! -d ${partialFolderPath} ] && [ ! -e ${rotationLockFilePath} ])
@@ -53,7 +57,7 @@ then
 	# .. and there is previous data
 	if [ -d ${bak0} ]
 	then
-		echo -e "\n[$(date -Is)] Backups rotation begins" | tee -a ${logFile}
+		writeToLog "\n[$(date -Is)] Backups rotation begins"
 
 		true $((i = i - 1))
 
@@ -73,12 +77,12 @@ then
 			fi
 		done
 
-		echo -e "[$(date -Is)] Backups rotation finished\n" | tee -a ${logFile}
+		writeToLog "[$(date -Is)] Backups rotation finished\n"
 	else
-		echo -e "\n[$(date -Is)] No previous data found, there is no backups to be rotated\n" | tee -a ${logFile}
+		writeToLog "\n[$(date -Is)] No previous data found, there is no backups to be rotated\n"
 	fi
 else
-	echo -e "\n[$(date -Is)] Last backup failed, backups will not be rotated\n" | tee -a ${logFile}
+	writeToLog "\n[$(date -Is)] Last backup failed, backups will not be rotated\n"
 fi
 
 # Prepare paths at destination
@@ -87,20 +91,25 @@ mkdir -p ${dst} ${logPath}
 # Set rotation lock file to detect in next run when backup fails
 touch ${rotationLockFilePath}
 
-echo -e "[$(date -Is)] Backup begins\n" | tee -a ${logFile}
+writeToLog "[$(date -Is)] Backup begins\n"
 
 # Do the backup
 rsync ${rsyncFlags} ${src}/ ${bak0}/
 
-# Clear unneeded partials if rsync succeeded
+# Check rsync success
 if [ "$?" -eq "0" ]
 then
-	echo -e "\n[$(date -Is)] Backup completed successfully\n" | tee -a ${logFile}
+	writeToLog "\n[$(date -Is)] Backup completed successfully\n"
 
+	# Clear unneeded partials and lock file
 	rm -rf ${partialFolderPath} ${rotationLockFilePath}
+	rsyncFail=0
 else
-	echo -e "\n[$(date -Is)] Backup failed, try again later\n" | tee -a ${logFile}
+	writeToLog "\n[$(date -Is)] Backup failed, try again later\n"
+	rsyncFail=1
 fi
 
 # Send the complete log file to destination
 mv ${logFile} ${logPath}
+
+exit ${rsyncFail}
