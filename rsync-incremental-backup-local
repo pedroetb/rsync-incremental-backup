@@ -61,7 +61,7 @@ mkdir -p ${dst} ${logPath}
 writeToLog "\n[$(date -Is)] Old logs sending begins\n"
 
 # Send old pending logs to destination
-rsync ${logRsyncFlags} ${tempLogPath}/ ${remoteLogPath}/
+rsync ${logRsyncFlags} ${tempLogPath}/ ${logPath}/
 
 writeToLog "\n[$(date -Is)] Old logs sending finished"
 
