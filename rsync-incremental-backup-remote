@@ -49,7 +49,7 @@ done
 
 # Prepare main rsync configuration
 rsyncFlags="-achvz --info=progress2 --timeout=${timeout} --delete --no-W --partial-dir=${partialFolderName} \
---link-dest=${bak1}/ --log-file=${logFile}"
+--link-dest=${bak1}/ --log-file=${logFile} --chmod=+r"
 
 # Prepare log rsync configuration
 logRsyncFlags="-rhvz --remove-source-files --exclude=${logName} --log-file=${logFile}"

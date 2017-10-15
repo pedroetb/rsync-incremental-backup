@@ -30,6 +30,10 @@ You can set some configuration variables to customize the script:
 * `tempLogPath`: Path where the log file will be stored while backup is in progress.
 * `logFolderName`: Directory inside `dst` where the log files are stored.
 
+All files and folders in backup get read permissions for all users, since a non-readable backup is useless.
+If you are worried about permissions, you can add a security layer on backup access level (FTP accounts protected with passwords, for example).
+You can also preserve original files and folders permissions removing the `--chmod=+r` flag from script.
+
 
 ## Usage
 
@@ -109,6 +113,7 @@ Log files per backup operation will be stored at `<dst>/log`.
 * `--partial-dir`: put a partially transferred file into specified directory, instead of using a hidden file in the original path of transferred file. Mandatory for allow partial transfers and avoid misleads with incomplete/corrupt files.
 * `--link-dest`: hardlink to files in specified directory when unchanged, to reduce storage usage by duplicated files between backups.
 * `--log-file`: log what we're doing to the specified file.
+* `--chmod`: affect file and/or directory permissions.
 * Used only for log sending:
 	* `-r`: recurse into directories.
 	* `--remove-source-files`: sender removes synchronized files (non-dir).
