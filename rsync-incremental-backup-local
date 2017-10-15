@@ -11,7 +11,7 @@ rotationLockFileName=".rsync-rotation-lock"
 pathBakN="backup"
 nameBakN="backup"
 logName="rsync-incremental-backup_$(date -Id)_$(date +%H-%M-%S).log"
-tempLogPath="/tmp"
+tempLogPath="${HOME}/.rsync-incremental-backup/${remote}_${dst//[\/]/\\}"
 logFolderName="log"
 
 # Combinate previously defined variables for use (don't touch this)
@@ -22,6 +22,7 @@ logPath="${dst}/${pathBakN}/${logFolderName}"
 logFile="${tempLogPath}/${logName}"
 
 # Prepare log file
+mkdir -p ${tempLogPath}
 touch ${logFile}
 
 writeToLog() {
@@ -42,14 +43,27 @@ do
 	true $((i = i + 1))
 done
 
-# Prepare rsync configuration
+# Prepare main rsync configuration
 rsyncFlags="-achv --info=progress2 --timeout=${timeout} --delete --partial-dir=${partialFolderPath} \
 --link-dest=${bak1}/ --log-file=${logFile}"
+
+# Prepare log rsync configuration
+logRsyncFlags="-rhv --remove-source-files --exclude=${logName} --log-file=${logFile}"
 
 writeToLog "\n[$(date -Is)] You are going to backup"
 writeToLog "\tfrom:  ${src}"
 writeToLog "\tto:    ${bak0}"
 writeToLog "\tflags: ${rsyncFlags}"
+
+# Prepare paths at destination
+mkdir -p ${dst} ${logPath}
+
+writeToLog "\n[$(date -Is)] Old logs sending begins\n"
+
+# Send old pending logs to destination
+rsync ${logRsyncFlags} ${tempLogPath}/ ${remoteLogPath}/
+
+writeToLog "\n[$(date -Is)] Old logs sending finished"
 
 # Rotate backups if last rsync succeeded ..
 if ([ ! -d ${partialFolderPath} ] && [ ! -e ${rotationLockFilePath} ])
@@ -84,9 +98,6 @@ then
 else
 	writeToLog "\n[$(date -Is)] Last backup failed, backups will not be rotated\n"
 fi
-
-# Prepare paths at destination
-mkdir -p ${dst} ${logPath}
 
 # Set rotation lock file to detect in next run when backup fails
 touch ${rotationLockFilePath}

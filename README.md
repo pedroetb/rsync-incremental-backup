@@ -109,8 +109,12 @@ Log files per backup operation will be stored at `<dst>/log`.
 * `--partial-dir`: put a partially transferred file into specified directory, instead of using a hidden file in the original path of transferred file. Mandatory for allow partial transfers and avoid misleads with incomplete/corrupt files.
 * `--link-dest`: hardlink to files in specified directory when unchanged, to reduce storage usage by duplicated files between backups.
 * `--log-file`: log what we're doing to the specified file.
+* Used only for log sending:
+	* `-r`: recurse into directories.
+	* `--remove-source-files`: sender removes synchronized files (non-dir).
+	* `--exclude`: exclude files matching pattern.
 
 
 ## References
 
-I was inspired by [Incremental Backups on Linux](http://www.admin-magazine.com/Articles/Using-rsync-for-Backups).
+This was inspired by [Incremental Backups on Linux](http://www.admin-magazine.com/Articles/Using-rsync-for-Backups).
