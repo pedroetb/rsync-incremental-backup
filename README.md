@@ -27,7 +27,7 @@ You can set some configuration variables to customize the script:
 * `pathBakN`: Directory inside `dst` where the rest of backups are stored.
 * `nameBakN`: Name of incremental backup directories. An index will be added at the end to show how old they are.
 * `logName`: Name given to log file generated at backup.
-* `tempLogPath`: Path where the log file will be stored while backup is in progress.
+* `tempLogFolderName`: Name given to folder inside user's home to hold logs while backup is in progress.
 * `logFolderName`: Directory inside `dst` where the log files are stored.
 
 All files and folders in backup get read permissions for all users, since a non-readable backup is useless.

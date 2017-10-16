@@ -11,10 +11,12 @@ rotationLockFileName=".rsync-rotation-lock"
 pathBakN="backup"
 nameBakN="backup"
 logName="rsync-incremental-backup_$(date -Id)_$(date +%H-%M-%S).log"
-tempLogPath="${HOME}/.rsync-incremental-backup/${remote}_${dst//[\/]/\\}"
+tempLogFolderName=".rsync-incremental-backup"
 logFolderName="log"
 
 # Combinate previously defined variables for use (don't touch this)
+tempLogBasePath="${HOME}/${tempLogFolderName}"
+tempLogPath="${tempLogBasePath}/local_${dst//[\/]/\\}"
 bak0="${dst}/${pathBak0}"
 partialFolderPath="${dst}/${partialFolderName}"
 rotationLockFilePath="${dst}/${rotationLockFileName}"
@@ -45,7 +47,7 @@ done
 
 # Prepare main rsync configuration
 rsyncFlags="-achv --info=progress2 --timeout=${timeout} --delete --partial-dir=${partialFolderPath} \
---link-dest=${bak1}/ --log-file=${logFile} --chmod=+r"
+--link-dest=${bak1}/ --log-file=${logFile} --exclude=${tempLogBasePath} --chmod=+r"
 
 # Prepare log rsync configuration
 logRsyncFlags="-rhv --remove-source-files --exclude=${logName} --log-file=${logFile}"
