@@ -11,6 +11,9 @@ Only new or modified data is stored (because it's incremental), so the size of b
 
 If a backup process gets interrupted, don't worry. You can continue it in the next run of the script without data lose and without transferring previously transferred data.
 
+In addition, there is a local backup script with special configuration, oriented to do backups for a GNU/Linux filesystem.
+For example, it already has omitted temporal, removable and other problematic paths, and is meant to backup to a external mount point (at `/mnt`).
+
 
 ## Configuration
 
@@ -30,9 +33,10 @@ You can set some configuration variables to customize the script:
 * `tempLogFolderName`: Name given to folder inside user's home to hold logs while backup is in progress.
 * `logFolderName`: Directory inside `dst` where the log files are stored.
 
-All files and folders in backup get read permissions for all users, since a non-readable backup is useless.
+All files and folders in backup (local and remote only) get read permissions for all users, since a non-readable backup is useless.
 If you are worried about permissions, you can add a security layer on backup access level (FTP accounts protected with passwords, for example).
 You can also preserve original files and folders permissions removing the `--chmod=+r` flag from script.
+In system backup, the original permissions are preserved by default.
 
 
 ## Usage
