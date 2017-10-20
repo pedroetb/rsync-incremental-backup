@@ -5,7 +5,9 @@ Configurable bash scripts to send incremental backups of your data to a local or
 
 ## Description
 
-These scripts does (as many as you want) incremental backups of the desired directory to another local or remote directory. The first directory acts as a master (doesn't get modified), making copies of itself at the second directory (slave). Then, you can browse the slave directory and get any file included into any previous backup.
+These scripts does (as many as you want) incremental backups of the desired directory to another local or remote directory.
+The first directory acts as a master (doesn't get modified), making copies of itself at the second directory (slave).
+Then, you can browse the slave directory and get any file included into any previous backup.
 
 Only new or modified data is stored (because it's incremental), so the size of backups doesn't grow too much.
 
@@ -118,12 +120,21 @@ Log files per backup operation will be stored at `<dst>/log`.
 * `--link-dest`: hardlink to files in specified directory when unchanged, to reduce storage usage by duplicated files between backups.
 * `--log-file`: log what we're doing to the specified file.
 * `--chmod`: affect file and/or directory permissions.
+
 * Used only for log sending:
 	* `-r`: recurse into directories.
 	* `--remove-source-files`: sender removes synchronized files (non-dir).
 	* `--exclude`: exclude files matching pattern.
 
+* Used only for system backup:
+	* `-A`: preserve ACLs (implies -p).
+	* `-X`: preserve extended attributes.
+
+
 
 ## References
 
-This was inspired by [Incremental Backups on Linux](http://www.admin-magazine.com/Articles/Using-rsync-for-Backups).
+This was inspired by:
+
+* [Incremental Backups on Linux](http://www.admin-magazine.com/Articles/Using-rsync-for-Backups).
+* [Rsync full system backup](https://wiki.archlinux.org/index.php/Rsync#Full_system_backup).
