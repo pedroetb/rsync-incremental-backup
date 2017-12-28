@@ -11,7 +11,7 @@ Then, you can browse the slave directory and get any file included into any prev
 
 Only new or modified data is stored (because it's incremental), so the size of backups doesn't grow too much.
 
-If a backup process gets interrupted, don't worry. You can continue it in the next run of the script without data lose and without transferring previously transferred data.
+If a backup process gets interrupted, don't worry. You can continue it in the next run of the script without data loss and without transferring previously transferred data.
 
 In addition, there is a local backup script with special configuration, oriented to do backups for a GNU/Linux filesystem.
 For example, it already has omitted temporal, removable and other problematic paths, and is meant to backup to a external mount point (at `/mnt`).
