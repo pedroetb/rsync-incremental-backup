@@ -6,7 +6,6 @@ dst="/mnt/path/to/target"
 backupDepth=7
 timeout=1800
 pathBak0="data"
-partialFolderName=".rsync-partial"
 rotationLockFileName=".rsync-rotation-lock"
 pathBakN="backup"
 nameBakN="backup"
@@ -18,7 +17,6 @@ logFolderName="log"
 tempLogBasePath="${HOME}/${tempLogFolderName}"
 tempLogPath="${tempLogBasePath}/system_${dst//[\/]/\\}"
 bak0="${dst}/${pathBak0}"
-partialFolderPath="${dst}/${partialFolderName}"
 rotationLockFilePath="${dst}/${rotationLockFileName}"
 logPath="${dst}/${pathBakN}/${logFolderName}"
 logFile="${tempLogPath}/${logName}"
@@ -46,7 +44,7 @@ do
 done
 
 # Prepare main rsync configuration
-rsyncFlags="-aAXhv --info=progress2 --timeout=${timeout} --delete --partial-dir=${partialFolderPath} \
+rsyncFlags="-aAXhv --info=progress2 --timeout=${timeout} --delete -W \
 --link-dest=${bak1}/ --log-file=${logFile} --exclude=${tempLogBasePath}"
 
 # Prepare log rsync configuration
@@ -68,7 +66,7 @@ rsync ${logRsyncFlags} ${tempLogPath}/ ${logPath}/
 writeToLog "\n[$(date -Is)] Old logs sending finished"
 
 # Rotate backups if last rsync succeeded ..
-if ([ ! -d ${partialFolderPath} ] && [ ! -e ${rotationLockFilePath} ])
+if ([ ! -e ${rotationLockFilePath} ])
 then
 	# .. and there is previous data
 	if [ -d ${bak0} ]
@@ -116,7 +114,7 @@ then
 	writeToLog "\n[$(date -Is)] Backup completed successfully\n"
 
 	# Clear unneeded partials and lock file
-	rm -rf ${partialFolderPath} ${rotationLockFilePath}
+	rm -rf ${rotationLockFilePath}
 	rsyncFail=0
 else
 	writeToLog "\n[$(date -Is)] Backup failed, try again later\n"

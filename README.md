@@ -115,20 +115,25 @@ Log files per backup operation will be stored at `<dst>/log`.
 * `--info=progress2`: show progress based on the whole transfer, rather than individual files. Only for interactive usage.
 * `--timeout`: set I/O timeout in seconds. If no data is transferred for the specified time, backup will be aborted.
 * `--delete`: delete extraneous files from dest dirs. Mandatory for master-slave backup usage.
-* `--no-W`: ensures that rsync's delta-transfer algorithm is used, so it never transfers whole files if they are present at target. Omit only when you have a high bandwidth to target, backup may be faster.
-* `--partial-dir`: put a partially transferred file into specified directory, instead of using a hidden file in the original path of transferred file. Mandatory for allow partial transfers and avoid misleads with incomplete/corrupt files.
 * `--link-dest`: hardlink to files in specified directory when unchanged, to reduce storage usage by duplicated files between backups.
 * `--log-file`: log what we're doing to the specified file.
 * `--chmod`: affect file and/or directory permissions.
+
+* Used only for remote backup:
+	* `--no-W`: ensures that rsync's delta-transfer algorithm is used, so it never transfers whole files if they are present at target. Omit only when you have a high bandwidth to target, backup may be faster.
+	* `--partial-dir`: put a partially transferred file into specified directory, instead of using a hidden file in the original path of transferred file. Mandatory for allow partial transfers and avoid misleads with incomplete/corrupt files.
+
+* Used only for local backups:
+	* `-W`: ignores rsync's delta-transfer algorithm, so it always transfers whole files. When you have a high bandwidth to target (local filesystem or LAN), backup may be faster.
+
+* Used only for system backup:
+	* `-A`: preserve ACLs (implies -p).
+	* `-X`: preserve extended attributes.
 
 * Used only for log sending:
 	* `-r`: recurse into directories.
 	* `--remove-source-files`: sender removes synchronized files (non-dir).
 	* `--exclude`: exclude files matching pattern.
-
-* Used only for system backup:
-	* `-A`: preserve ACLs (implies -p).
-	* `-X`: preserve extended attributes.
 
 
 
