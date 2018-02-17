@@ -32,7 +32,8 @@ You can set some configuration variables to customize the script:
 * `pathBakN`: Directory inside `dst` where the rest of backups are stored.
 * `nameBakN`: Name of incremental backup directories. An index will be added at the end to show how old they are.
 * `logName`: Name given to log file generated at backup.
-* `tempLogFolderName`: Name given to folder inside user's home to hold logs while backup is in progress.
+* `exclusionFileName`: Name given to the text file that contains exclusion patterns. You must create it inside directory defined by `ownFolderName`.
+* `ownFolderName`: Name given to folder inside user's home to hold configuration files and logs while backup is in progress.
 * `logFolderName`: Directory inside `dst` where the log files are stored.
 
 All files and folders in backup (local and remote only) get read permissions for all users, since a non-readable backup is useless.
@@ -59,6 +60,9 @@ After that, you should use the `Host` value from your *ssh config file* as the `
 ### Customizing configuration values
 
 You have to set, at least, `src` and `dst` (and `remote` in remote version) values.
+
+If you want to exclude some files or directories from backup, add their paths (relative to backup root) to the text file referenced by `exclusionFileName`.
+
 Once configured with your own variable values, you can simply run the script to begin the backup process.
 
 ### Automating backups
@@ -118,6 +122,8 @@ Log files per backup operation will be stored at `<dst>/log`.
 * `--link-dest`: hardlink to files in specified directory when unchanged, to reduce storage usage by duplicated files between backups.
 * `--log-file`: log what we're doing to the specified file.
 * `--chmod`: affect file and/or directory permissions.
+* `--exclude`: exclude files matching pattern.
+* `--exclude-from`: same as `--exclude`, but getting patterns from specified file.
 
 * Used only for remote backup:
 	* `--no-W`: ensures that rsync's delta-transfer algorithm is used, so it never transfers whole files if they are present at target. Omit only when you have a high bandwidth to target, backup may be faster.
@@ -133,7 +139,6 @@ Log files per backup operation will be stored at `<dst>/log`.
 * Used only for log sending:
 	* `-r`: recurse into directories.
 	* `--remove-source-files`: sender removes synchronized files (non-dir).
-	* `--exclude`: exclude files matching pattern.
 
 
 

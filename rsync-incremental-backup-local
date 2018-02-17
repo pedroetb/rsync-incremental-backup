@@ -9,13 +9,15 @@ pathBak0="data"
 rotationLockFileName=".rsync-rotation-lock"
 pathBakN="backup"
 nameBakN="backup"
+exclusionFileName="exclude.txt"
 logName="rsync-incremental-backup_$(date -Id)_$(date +%H-%M-%S).log"
-tempLogFolderName=".rsync-incremental-backup"
+ownFolderName=".rsync-incremental-backup"
 logFolderName="log"
 
 # Combinate previously defined variables for use (don't touch this)
-tempLogBasePath="${HOME}/${tempLogFolderName}"
-tempLogPath="${tempLogBasePath}/local_${dst//[\/]/\\}"
+ownFolderPath="${HOME}/${ownFolderName}"
+tempLogPath="${ownFolderPath}/local_${dst//[\/]/\\}"
+exclusionFilePath="${ownFolderPath}/${exclusionFileName}"
 bak0="${dst}/${pathBak0}"
 rotationLockFilePath="${dst}/${rotationLockFileName}"
 logPath="${dst}/${pathBakN}/${logFolderName}"
@@ -45,7 +47,8 @@ done
 
 # Prepare main rsync configuration
 rsyncFlags="-achv --info=progress2 --timeout=${timeout} --delete -W \
---link-dest=${bak1}/ --log-file=${logFile} --exclude=${tempLogBasePath} --chmod=+r"
+--link-dest=${bak1}/ --log-file=${logFile} --exclude=${ownFolderPath} --chmod=+r \
+--exclude-from=${exclusionFilePath}"
 
 # Prepare log rsync configuration
 logRsyncFlags="-rhv --remove-source-files --exclude=${logName} --log-file=${logFile}"
