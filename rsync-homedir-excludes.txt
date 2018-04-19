@@ -1,0 +1,282 @@
+# rsync-homedir-excludes
+#
+# A list of files to exclude when backing up *nix home directories using rsync.
+#
+# Author: Ruben Barkow <https://github.com/rubo77/rsync-homedir-excludes>
+# Version: 2015-08-30
+#
+# #Usage:
+#    USER=<homedir username here>
+#    rsync -aP --exclude-from=rsync-homedir-excludes.txt /home/$USER/ /media/$USER/linuxbackup/home/$USER/
+
+
+###############################################
+# directories, probably not worth a backup    #
+# (uncomment the files you don't need)        #
+###############################################
+
+#.android
+#.AndroidStudio*/
+#Android/Sdk
+#.gradle
+#.gvm
+#.grails/
+#.grails_history
+#.kde/share/apps/nepomuk
+#.local/share/notbit
+#.local/libvirt
+#.vagrant
+#.vagrant.d
+#.wine
+#.twister
+#/twister
+#Applications/eclipse*
+#/Downloads
+#*Popcorntime*
+#/Scribus
+#/VirtualBox*
+#
+## Add Game Folders here:
+#
+#/games
+#.local/share/Steam
+#.steam
+#Steam
+#.minecraft
+#.PlayOnLinux
+
+
+################################################
+# These directories may definitely be excluded #
+################################################
+
+# Contains mounted file systems:
+
+.gvfs
+.local/share/gvfs-metadata
+# contains the actual encrypted home directory
+/.Private
+
+# Session-specific:
+/.dbus
+.cache
+/.Trash
+.Trash-1*
+.local/share/Trash
+/Trash
+
+# Cached info about audio CDs:
+.cddb
+
+# Cached packages lists:
+.aptitude
+
+# Node Package Manager cache
+.npm
+
+#Flash-specific:
+
+# Cache for flash, maybe others?
+.adobe
+# except for Flash persistence, there is no reason to keep this
+.macromedia
+
+#Files:
+
+# Contains errors from the current graphical session
+.xsession-errors
+.wayland-errors
+
+# Recently used files
+.local/share/RecentDocuments
+.recently-used
+.recently-used.xbel
+recently-used.xbel
+.thumbnails
+.thumb
+Thumbs.db
+.DS_Store
+.localised
+.bash_history
+.CFUserTextEncoding
+
+# Common Unix Printing System
+/.cups
+
+# run-time configuration information for Subversion
+/.subversion
+
+# Python virtual environments
+/.virtualenvs
+
+# Session-specific
+.Xauthority
+.ICEauthority
+.gksu.lock
+.pulse
+.pulse-cookie
+.esd_auth
+
+#KDE specific:
+
+# Recent documents on KDE
+.kde/share/apps/RecentDocuments
+.kde4/share/apps/RecentDocuments
+# Contains a history of the Klipper clipboard (KDE)
+.kde/share/apps/klipper
+.kde4/share/apps/klipper
+# You will loose saved scrolling positions of PDFs
+.kde/share/apps/okular/docdata
+.kde/share/apps/gwenview/recentfolders
+.kde4/share/apps/okular/docdata
+.kde4/share/apps/gwenview/recentfolders
+# Cached other users' profile pics
+.kde/share/apps/kmess/displaypics
+.kde4/share/apps/kmess/displaypics
+# Cached emoticons of others
+.kde/share/apps/kmess/customemoticons
+.kde4/share/apps/kmess/customemoticons
+
+#Firefox-specific (see also Profile folder):
+
+.mozilla/firefox/*/Cache
+# in case Fx crashes dumps will be stored in this
+.mozilla/firefox/*/minidumps
+# session-specific 
+.mozilla/firefox/*/.parentlock
+# phishing database, recreated
+.mozilla/firefox/*/urlclassifier3.sqlite
+# blacklisted extensions
+.mozilla/firefox/*/blocklist.xml
+# extension database, recreated on startup
+.mozilla/firefox/*/extensions.sqlite
+.mozilla/firefox/*/extensions.sqlite-journal
+.mozilla/firefox/*/extensions.rdf
+.mozilla/firefox/*/extensions.ini
+.mozilla/firefox/*/extensions.cache
+# cached UI data, recreated
+.mozilla/firefox/*/XUL.mfasl
+.mozilla/firefox/*/XPC.mfasl
+.mozilla/firefox/*/xpti.dat
+.mozilla/firefox/*/compreg.dat
+# cached plugin data, recreated
+.mozilla/firefox/*/pluginreg.dat
+
+#SeaMonkey-specific (see also Profile folder):
+
+.mozilla/seamonkey/*/Cache
+# in case Fx crashes dumps will be stored in this
+.mozilla/seamonkey/*/minidumps
+# session-specific 
+.mozilla/seamonkey/*/.parentlock
+# blacklisted extensions
+.mozilla/seamonkey/*/blocklist.xml
+# extension database, recreated on startup
+.mozilla/seamonkey/*/extensions.sqlite
+.mozilla/seamonkey/*/extensions.rdf
+.mozilla/seamonkey/*/extensions.ini
+# cached UI data, recreated
+.mozilla/seamonkey/*/xpti.dat
+.mozilla/seamonkey/*/compreg.dat
+# cached plugin data, recreated
+.mozilla/seamonkey/*/pluginreg.dat
+
+# Thunderbird Cache in your profile folder
+.thunderbird/*/Cache
+
+#Opera-specific (related question on Superuser.com: Is documentation available on files and directories in the Opera profile folder?):
+
+.opera/temporary_downloads
+.opera/cache
+.opera/thumbnails
+.opera/opcache
+.opera/icons
+.opera/application_cache
+.opera/widgets/*/cache
+.opera/lock
+
+# Keychain dir (manage SSH and GPG keys, front-end to ssh-agent and ssh-add)
+/.keychain
+
+#Komodo Edit:
+
+.komodoedit/*/codeintel/db
+.komodoedit/*/host-*/*/codeintel
+.komodoedit/*/XRE/Cache
+.komodoedit/*/XRE/.activatestate/komodo edit/Crash Reports
+.komodoedit/*/XRE/.activatestate/komodo edit/*/Cache
+.komodoedit/*/XRE/.activatestate/komodo edit/*/minidump
+.komodoedit/*/XRE/.parentlock
+.komodoedit/*/XRE/extensions.rdf
+.komodoedit/*/XRE/extensions.ini
+.komodoedit/*/XRE/extensions.cache
+.komodoedit/*/XRE/XPC.mfasl
+.komodoedit/*/XRE/XUL.mfasl
+.komodoedit/*/XRE/xpti.dat
+.komodoedit/*/XRE/pluginreg.dat
+.komodoedit/*/XRE/compreg.dat
+.komodoedit/*/XRE/*.sqlite-journal
+.komodoedit/*/pystdout.log
+.komodoedit/*/pystderr.log
+.komodoedit/*/history.sqlite.bak
+.komodoedit/*/running.lock
+.komodoedit/*/mutex.lock
+.komodoedit/*/*.xmlc
+.komodoedit/*/startup-env.tmp
+.komoeoedit/*/commandments.fifo
+.komoeoedit/*/history.sqlite
+
+#GnuPG:
+
+.gnupg/rnd
+.gnupg/random_seed
+.gnupg/.#*
+.gnupg/*.lock
+.gnupg/gpg-agent-info-*
+
+#Google Earth:
+.googleearth/Temp
+.googleearth/Cache
+
+#Google Chrome:
+
+.config/google-chrome/Default/Local Storage
+.config/google-chrome/Default/Session Storage
+.config/google-chrome/Default/Application Cache
+.config/google-chrome/Default/History Index *
+
+#Chromium:
+
+.config/chromium/Default/Local Storage
+.config/chromium/Default/Session Storage
+.config/chromium/Default/Application Cache
+.config/chromium/Default/History Index *
+
+#Local repositories (added by errantlinguist on 2015-04-13):
+.gradle/caches
+/.m2/repository
+
+#indexer
+.local/share/baloo
+.local/share/zeitgeist
+.local/share/akonadi
+
+#Other apps:
+
+# Pidgin
+.pulse/icons
+# Cached applets
+.guayadeque/cache.db
+.java/deployment/cache
+.icedteaplugin
+.icedtea
+.gnome2/epiphany/favicon_cache
+
+# other temporary files 
+nohup.out
+
+# LibreOffice cache files
+.config/libreoffice/4/cache
+
+# freshplayerplugin LSO
+.config/freshwrapper-data/Shockwave Flash/WritableRoot/#SharedObjects
