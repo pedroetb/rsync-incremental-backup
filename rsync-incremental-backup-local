@@ -24,11 +24,11 @@ logPath="${dst}/${pathBakN}/${logFolderName}"
 logFile="${tempLogPath}/${logName}"
 
 # Prepare log file
-mkdir -p ${tempLogPath}
-touch ${logFile}
+mkdir -p "${tempLogPath}"
+touch "${logFile}"
 
 writeToLog() {
-	echo -e "$1" | tee -a ${logFile}
+	echo -e "${1}" | tee -a "${logFile}"
 }
 
 writeToLog "********************************"
@@ -39,10 +39,10 @@ writeToLog "********************************"
 
 # Prepare backup paths
 i=1
-while [ $i -le $backupDepth ]
+while [ "${i}" -le "${backupDepth}" ]
 do
-	export bak$i="${dst}/${pathBakN}/${nameBakN}.$i"
-	true $((i = i + 1))
+	export "bak${i}"="${dst}/${pathBakN}/${nameBakN}.${i}"
+	true "$((i = i + 1))"
 done
 
 # Prepare main rsync configuration
@@ -59,38 +59,38 @@ writeToLog "\tto:    ${bak0}"
 writeToLog "\tflags: ${rsyncFlags}"
 
 # Prepare paths at destination
-mkdir -p ${dst} ${logPath}
+mkdir -p "${dst}" "${logPath}"
 
 writeToLog "\n[$(date -Is)] Old logs sending begins\n"
 
 # Send old pending logs to destination
-rsync ${logRsyncFlags} ${tempLogPath}/ ${logPath}/
+rsync ${logRsyncFlags} "${tempLogPath}/" "${logPath}/"
 
 writeToLog "\n[$(date -Is)] Old logs sending finished"
 
 # Rotate backups if last rsync succeeded ..
-if ([ ! -e ${rotationLockFilePath} ])
+if ([ ! -e "${rotationLockFilePath}" ])
 then
 	# .. and there is previous data
-	if [ -d ${bak0} ]
+	if [ -d "${bak0}" ]
 	then
 		writeToLog "\n[$(date -Is)] Backups rotation begins"
 
-		true $((i = i - 1))
+		true "$((i = i - 1))"
 
 		# Remove the oldest backup if exists
-		bak="bak$i"
-		rm -rf ${!bak}
+		bak="bak${i}"
+		rm -rf "${!bak}"
 
 		# Rotate the previous backups
-		while [ $i -gt 0 ]
+		while [ "${i}" -gt 0 ]
 		do
-			bakNewPath="bak$i"
-			true $((i = i - 1))
-			bakOldPath="bak$i"
-			if [ -d ${!bakOldPath} ]
+			bakNewPath="bak${i}"
+			true "$((i = i - 1))"
+			bakOldPath="bak${i}"
+			if [ -d "${!bakOldPath}" ]
 			then
-				mv ${!bakOldPath} ${!bakNewPath}
+				mv "${!bakOldPath}" "${!bakNewPath}"
 			fi
 		done
 
@@ -103,20 +103,20 @@ else
 fi
 
 # Set rotation lock file to detect in next run when backup fails
-touch ${rotationLockFilePath}
+touch "${rotationLockFilePath}"
 
 writeToLog "[$(date -Is)] Backup begins\n"
 
 # Do the backup
-rsync ${rsyncFlags} ${src}/ ${bak0}/
+rsync ${rsyncFlags} "${src}/" "${bak0}/"
 
 # Check rsync success
-if [ "$?" -eq "0" ]
+if [ "${?}" -eq "0" ]
 then
 	writeToLog "\n[$(date -Is)] Backup completed successfully\n"
 
 	# Clear unneeded partials and lock file
-	rm -rf ${rotationLockFilePath}
+	rm -rf "${rotationLockFilePath}"
 	rsyncFail=0
 else
 	writeToLog "\n[$(date -Is)] Backup failed, try again later\n"
@@ -124,6 +124,6 @@ else
 fi
 
 # Send the complete log file to destination
-mv ${logFile} ${logPath}
+mv "${logFile}" "${logPath}"
 
-exit ${rsyncFail}
+exit "${rsyncFail}"

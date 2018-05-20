@@ -30,11 +30,11 @@ remoteLogPath="${remote}:${logPath}"
 logFile="${tempLogPath}/${logName}"
 
 # Prepare log file
-mkdir -p ${tempLogPath}
-touch ${logFile}
+mkdir -p "${tempLogPath}"
+touch "${logFile}"
 
 writeToLog() {
-	echo -e "$1" | tee -a ${logFile}
+	echo -e "${1}" | tee -a "${logFile}"
 }
 
 writeToLog "********************************"
@@ -45,10 +45,10 @@ writeToLog "********************************"
 
 # Prepare backup paths
 i=1
-while [ $i -le $backupDepth ]
+while [ "${i}" -le "${backupDepth}" ]
 do
-	export bak$i="${dst}/${pathBakN}/${nameBakN}.$i"
-	true $((i = i + 1))
+	export "bak${i}"="${dst}/${pathBakN}/${nameBakN}.${i}"
+	true "$((i = i + 1))"
 done
 
 # Prepare main rsync configuration
@@ -65,46 +65,46 @@ writeToLog "\tto:    ${remoteBak0}"
 writeToLog "\tflags: ${rsyncFlags}"
 
 # Check remote connection
-ssh -q -o BatchMode=yes -o ConnectTimeout=10 ${remote} exit
-if [ "$?" -ne "0" ]
+ssh -q -o BatchMode=yes -o ConnectTimeout=10 "${remote}" exit
+if [ "${?}" -ne "0" ]
 then
 	writeToLog "\n[$(date -Is)] Remote destination is not reachable"
 	exit 1
 fi
 
 # Prepare paths at destination
-ssh ${remote} "mkdir -p ${dst} ${logPath}"
+ssh "${remote}" "mkdir -p ${dst} ${logPath}"
 
 writeToLog "\n[$(date -Is)] Old logs sending begins\n"
 
 # Send old pending logs to destination
-rsync ${logRsyncFlags} ${tempLogPath}/ ${remoteLogPath}/
+rsync ${logRsyncFlags} "${tempLogPath}/" "${remoteLogPath}/"
 
 writeToLog "\n[$(date -Is)] Old logs sending finished"
 
 # Rotate backups if last rsync succeeded ..
-if (ssh ${remote} "[ ! -d ${partialFolderPath} ] && [ ! -e ${rotationLockFilePath} ]")
+if (ssh "${remote}" "[ ! -d ${partialFolderPath} ] && [ ! -e ${rotationLockFilePath} ]")
 then
 	# .. and there is previous data
-	if (ssh ${remote} "[ -d ${bak0} ]")
+	if (ssh "${remote}" "[ -d ${bak0} ]")
 	then
 		writeToLog "\n[$(date -Is)] Backups rotation begins"
 
-		true $((i = i - 1))
+		true "$((i = i - 1))"
 
 		# Remove the oldest backup if exists
-		bak="bak$i"
-		ssh ${remote} "rm -rf ${!bak}"
+		bak="bak${i}"
+		ssh "${remote}" "rm -rf ${!bak}"
 
 		# Rotate the previous backups
-		while [ $i -gt 0 ]
+		while [ "${i}" -gt 0 ]
 		do
-			bakNewPath="bak$i"
-			true $((i = i - 1))
-			bakOldPath="bak$i"
-			if (ssh ${remote} "[ -d ${!bakOldPath} ]")
+			bakNewPath="bak${i}"
+			true "$((i = i - 1))"
+			bakOldPath="bak${i}"
+			if (ssh "${remote}" "[ -d ${!bakOldPath} ]")
 			then
-				ssh ${remote} "mv ${!bakOldPath} ${!bakNewPath}"
+				ssh "${remote}" "mv ${!bakOldPath} ${!bakNewPath}"
 			fi
 		done
 
@@ -117,20 +117,20 @@ else
 fi
 
 # Set rotation lock file to detect in next run when backup fails
-ssh ${remote} "touch ${rotationLockFilePath}"
+ssh "${remote}" "touch ${rotationLockFilePath}"
 
 writeToLog "[$(date -Is)] Backup begins\n"
 
 # Do the backup
-rsync ${rsyncFlags} ${src}/ ${remoteBak0}/
+rsync ${rsyncFlags} "${src}/" "${remoteBak0}/"
 
 # Check rsync success
-if [ "$?" -eq "0" ]
+if [ "${?}" -eq "0" ]
 then
 	writeToLog "\n[$(date -Is)] Backup completed successfully\n"
 
 	# Clear unneeded partials and lock file
-	ssh ${remote} "rm -rf ${partialFolderPath} ${rotationLockFilePath}"
+	ssh "${remote}" "rm -rf ${partialFolderPath} ${rotationLockFilePath}"
 	rsyncFail=0
 else
 	writeToLog "\n[$(date -Is)] Backup failed, try again later\n"
@@ -138,10 +138,10 @@ else
 fi
 
 # Send the complete log file to destination
-scp ${logFile} ${remoteLogPath}
-if [ "$?" -eq "0" ]
+scp "${logFile}" "${remoteLogPath}"
+if [ "${?}" -eq "0" ]
 then
-	rm ${logFile}
+	rm "${logFile}"
 fi
 
-exit ${rsyncFail}
+exit "${rsyncFail}"
