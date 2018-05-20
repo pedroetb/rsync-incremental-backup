@@ -116,7 +116,6 @@ Log files per backup operation will be stored at `<dst>/log`.
 * `-v`: increase verbosity for logging.
 * `-z`: compress file data during the transfer. Less data transmitted, but slower. Omit this flag when backup target is a local device or a machine in local network (or when you have a high bandwidth to a remote machine).
 * `--progress`: show progress per file during transfer. Only for interactive usage.
-* `--info=progress2`: show progress based on the whole transfer, rather than individual files. Only for interactive usage.
 * `--timeout`: set I/O timeout in seconds. If no data is transferred for the specified time, backup will be aborted.
 * `--delete`: delete extraneous files from dest dirs. Mandatory for master-slave backup usage.
 * `--link-dest`: hardlink to files in specified directory when unchanged, to reduce storage usage by duplicated files between backups.

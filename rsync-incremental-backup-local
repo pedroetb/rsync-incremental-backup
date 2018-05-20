@@ -23,9 +23,10 @@ rotationLockFilePath="${dst}/${rotationLockFileName}"
 logPath="${dst}/${pathBakN}/${logFolderName}"
 logFile="${tempLogPath}/${logName}"
 
-# Prepare log file
+# Prepare own folder
 mkdir -p "${tempLogPath}"
 touch "${logFile}"
+touch "${exclusionFilePath}"
 
 writeToLog() {
 	echo -e "${1}" | tee -a "${logFile}"
@@ -46,7 +47,7 @@ do
 done
 
 # Prepare main rsync configuration
-rsyncFlags="-achv --info=progress2 --timeout=${timeout} --delete -W \
+rsyncFlags="-achv --progress --timeout=${timeout} --delete -W \
 --link-dest=${bak1}/ --log-file=${logFile} --exclude=${ownFolderPath} --chmod=+r \
 --exclude-from=${exclusionFilePath}"
 

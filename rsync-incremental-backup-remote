@@ -29,9 +29,10 @@ logPath="${dst}/${pathBakN}/${logFolderName}"
 remoteLogPath="${remote}:${logPath}"
 logFile="${tempLogPath}/${logName}"
 
-# Prepare log file
+# Prepare own folder
 mkdir -p "${tempLogPath}"
 touch "${logFile}"
+touch "${exclusionFilePath}"
 
 writeToLog() {
 	echo -e "${1}" | tee -a "${logFile}"
@@ -52,7 +53,7 @@ do
 done
 
 # Prepare main rsync configuration
-rsyncFlags="-achvz --info=progress2 --timeout=${timeout} --delete --no-W --partial-dir=${partialFolderName} \
+rsyncFlags="-achvz --progress --timeout=${timeout} --delete --no-W --partial-dir=${partialFolderName} \
 --link-dest=${bak1}/ --log-file=${logFile} --exclude=${ownFolderPath} --chmod=+r \
 --exclude-from=${exclusionFilePath}"
 
