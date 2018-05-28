@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Configuration variables (change as you wish)
-src="/path/to/source"
-dst="/path/to/target"
-remote="ssh_remote"
+src="${1:-/path/to/source}"
+dst="${2:-/path/to/target}"
+remote="${3:-ssh_remote}"
 backupDepth=7
 timeout=1800
 pathBak0="data"
@@ -52,18 +52,9 @@ do
 	true "$((i = i + 1))"
 done
 
-# Prepare main rsync configuration
-rsyncFlags="-achvz --progress --timeout=${timeout} --delete --no-W --partial-dir=${partialFolderName} \
---link-dest=${bak1}/ --log-file=${logFile} --exclude=${ownFolderPath} --chmod=+r \
---exclude-from=${exclusionFilePath}"
-
-# Prepare log rsync configuration
-logRsyncFlags="-rhvz --remove-source-files --exclude=${logName} --log-file=${logFile}"
-
 writeToLog "\n[$(date -Is)] You are going to backup"
 writeToLog "\tfrom:  ${src}"
 writeToLog "\tto:    ${remoteBak0}"
-writeToLog "\tflags: ${rsyncFlags}"
 
 # Check remote connection
 ssh -q -o BatchMode=yes -o ConnectTimeout=10 "${remote}" exit
@@ -79,7 +70,8 @@ ssh "${remote}" "mkdir -p ${dst} ${logPath}"
 writeToLog "\n[$(date -Is)] Old logs sending begins\n"
 
 # Send old pending logs to destination
-rsync ${logRsyncFlags} "${tempLogPath}/" "${remoteLogPath}/"
+rsync -rhvz --remove-source-files --exclude="${logName}" --log-file="${logFile}" \
+"${tempLogPath}/" "${remoteLogPath}/"
 
 writeToLog "\n[$(date -Is)] Old logs sending finished"
 
@@ -123,7 +115,9 @@ ssh "${remote}" "touch ${rotationLockFilePath}"
 writeToLog "[$(date -Is)] Backup begins\n"
 
 # Do the backup
-rsync ${rsyncFlags} "${src}/" "${remoteBak0}/"
+rsync -achvz --progress --timeout="${timeout}" --delete --no-W --partial-dir="${partialFolderName}" \
+--link-dest="${bak1}/" --log-file="${logFile}" --exclude="${ownFolderPath}" --chmod=+r \
+--exclude-from="${exclusionFilePath}" "${src}/" "${remoteBak0}/"
 
 # Check rsync success
 if [ "${?}" -eq "0" ]

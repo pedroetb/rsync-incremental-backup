@@ -5,13 +5,13 @@ Configurable bash scripts to send incremental backups of your data to a local or
 
 ## Description
 
-These scripts does (as many as you want) incremental backups of the desired directory to another local or remote directory.
-The first directory acts as a master (doesn't get modified), making copies of itself at the second directory (slave).
+These scripts do (as many as you want) incremental backups of desired directory to another local or remote directory.
+The first directory acts as master (doesn't get modified), making copies of itself at the second directory (slave).
 Then, you can browse the slave directory and get any file included into any previous backup.
 
 Only new or modified data is stored (because it's incremental), so the size of backups doesn't grow too much.
 
-If a backup process gets interrupted, don't worry. You can continue it in the next run of the script without data loss and without transferring previously transferred data.
+If a backup process gets interrupted, don't worry. You can continue it in the next run of the script without data loss and without resending previously transferred data.
 
 In addition, there is a local backup script with special configuration, oriented to do backups for a GNU/Linux filesystem.
 For example, it already has omitted temporal, removable and other problematic paths, and is meant to backup to a external mount point (at `/mnt`).
@@ -21,9 +21,9 @@ For example, it already has omitted temporal, removable and other problematic pa
 
 You can set some configuration variables to customize the script:
 
-* `src`: Path to source directory. Backups will include it's content.
-* `dst`: Path to target directory. Backups will be placed here.
-* `remote`: *ssh_config* host name to connect to remote host (only for remote version).
+* `src`: Path to source directory. Backups will include it's content. Overwritable by parameters.
+* `dst`: Path to target directory. Backups will be placed here. Overwritable by parameters.
+* `remote`: *ssh_config* host name to connect to remote host (only for remote version). Overwritable by parameters.
 * `backupDepth`: Number of backups to keep. When limit is reached, the oldest get deleted.
 * `timeout`: Timeout to cancel backup process, if it's not responding.
 * `pathBak0`: Directory inside `dst` where the more recent backup is stored.
@@ -59,7 +59,11 @@ After that, you should use the `Host` value from your *ssh config file* as the `
 
 ### Customizing configuration values
 
-You have to set, at least, `src` and `dst` (and `remote` in remote version) values.
+You have to set, at least, `src` and `dst` (and `remote` in remote version) values, directly in the scripts or by positional parameters when running them:
+
+* `./rsync-incremental-backup-local /new/path/to/source /new/path/to/target` (`src` and `dst`).
+* `./rsync-incremental-backup-remote /new/path/to/source /new/path/to/target new_ssh_remote` (`src`, `dst` and `remote`).
+* `./rsync-incremental-backup-system /mnt/new/path/to/target` (only `dst`, `src` is always *root* on this case).
 
 If you want to exclude some files or directories from backup, add their paths (relative to backup root) to the text file referenced by `exclusionFileName`.
 

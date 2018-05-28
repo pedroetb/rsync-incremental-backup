@@ -2,7 +2,7 @@
 
 # Configuration variables (change as you wish)
 src="/"
-dst="/mnt/path/to/target"
+dst="${1:-/mnt/path/to/target}"
 backupDepth=7
 timeout=1800
 pathBak0="data"
@@ -46,18 +46,9 @@ do
 	true "$((i = i + 1))"
 done
 
-# Prepare main rsync configuration
-rsyncFlags="-aAXhv --progress --timeout=${timeout} --delete -W \
---link-dest=${bak1}/ --log-file=${logFile} --exclude=${ownFolderPath} \
---exclude-from=${exclusionFilePath}"
-
-# Prepare log rsync configuration
-logRsyncFlags="-rhv --remove-source-files --exclude=${logName} --log-file=${logFile}"
-
 writeToLog "\n[$(date -Is)] You are going to backup"
 writeToLog "\tfrom:  ${src}"
 writeToLog "\tto:    ${bak0}"
-writeToLog "\tflags: ${rsyncFlags}"
 
 # Prepare paths at destination
 mkdir -p "${dst}" "${logPath}"
@@ -65,7 +56,8 @@ mkdir -p "${dst}" "${logPath}"
 writeToLog "\n[$(date -Is)] Old logs sending begins\n"
 
 # Send old pending logs to destination
-rsync ${logRsyncFlags} "${tempLogPath}/" "${logPath}/"
+rsync -rhv --remove-source-files --exclude="${logName}" --log-file="${logFile}" \
+"${tempLogPath}/" "${logPath}/"
 
 writeToLog "\n[$(date -Is)] Old logs sending finished"
 
@@ -109,7 +101,8 @@ touch "${rotationLockFilePath}"
 writeToLog "[$(date -Is)] Backup begins\n"
 
 # Do the backup (with mandatory exclusions)
-rsync ${rsyncFlags} \
+rsync -aAXhv --progress --timeout="${timeout}" --delete -W --link-dest="${bak1}/" \
+--log-file="${logFile}" --exclude="${ownFolderPath}" --exclude-from="${exclusionFilePath}" \
 --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} \
 "${src}/" "${bak0}/"
 
