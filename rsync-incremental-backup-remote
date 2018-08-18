@@ -12,9 +12,10 @@ rotationLockFileName=".rsync-rotation-lock"
 pathBakN="backup"
 nameBakN="backup"
 exclusionFileName="exclude.txt"
-logName="rsync-incremental-backup_$(date -Id)_$(date +%H-%M-%S).log"
+logName="rsync-incremental-backup_$(${dateCmd} -Id)_$(${dateCmd} +%H-%M-%S).log"
 ownFolderName=".rsync-incremental-backup"
 logFolderName="log"
+dateCmd="date"
 
 # Combinate previously defined variables for use (don't touch this)
 ownFolderPath="${HOME}/${ownFolderName}"
@@ -52,7 +53,7 @@ do
 	true "$((i = i + 1))"
 done
 
-writeToLog "\n[$(date -Is)] You are going to backup"
+writeToLog "\n[$(${dateCmd} -Is)] You are going to backup"
 writeToLog "\tfrom:  ${src}"
 writeToLog "\tto:    ${remoteBak0}"
 
@@ -60,20 +61,20 @@ writeToLog "\tto:    ${remoteBak0}"
 ssh -q -o BatchMode=yes -o ConnectTimeout=10 "${remote}" exit
 if [ "${?}" -ne "0" ]
 then
-	writeToLog "\n[$(date -Is)] Remote destination is not reachable"
+	writeToLog "\n[$(${dateCmd} -Is)] Remote destination is not reachable"
 	exit 1
 fi
 
 # Prepare paths at destination
 ssh "${remote}" "mkdir -p ${dst} ${logPath}"
 
-writeToLog "\n[$(date -Is)] Old logs sending begins\n"
+writeToLog "\n[$(${dateCmd} -Is)] Old logs sending begins\n"
 
 # Send old pending logs to destination
 rsync -rhvz --remove-source-files --exclude="${logName}" --log-file="${logFile}" \
 "${tempLogPath}/" "${remoteLogPath}/"
 
-writeToLog "\n[$(date -Is)] Old logs sending finished"
+writeToLog "\n[$(${dateCmd} -Is)] Old logs sending finished"
 
 # Rotate backups if last rsync succeeded ..
 if (ssh "${remote}" "[ ! -d ${partialFolderPath} ] && [ ! -e ${rotationLockFilePath} ]")
@@ -81,7 +82,7 @@ then
 	# .. and there is previous data
 	if (ssh "${remote}" "[ -d ${bak0} ]")
 	then
-		writeToLog "\n[$(date -Is)] Backups rotation begins"
+		writeToLog "\n[$(${dateCmd} -Is)] Backups rotation begins"
 
 		true "$((i = i - 1))"
 
@@ -101,18 +102,18 @@ then
 			fi
 		done
 
-		writeToLog "[$(date -Is)] Backups rotation finished\n"
+		writeToLog "[$(${dateCmd} -Is)] Backups rotation finished\n"
 	else
-		writeToLog "\n[$(date -Is)] No previous data found, there is no backups to be rotated\n"
+		writeToLog "\n[$(${dateCmd} -Is)] No previous data found, there is no backups to be rotated\n"
 	fi
 else
-	writeToLog "\n[$(date -Is)] Last backup failed, backups will not be rotated\n"
+	writeToLog "\n[$(${dateCmd} -Is)] Last backup failed, backups will not be rotated\n"
 fi
 
 # Set rotation lock file to detect in next run when backup fails
 ssh "${remote}" "touch ${rotationLockFilePath}"
 
-writeToLog "[$(date -Is)] Backup begins\n"
+writeToLog "[$(${dateCmd} -Is)] Backup begins\n"
 
 # Do the backup
 rsync -achvz --progress --timeout="${timeout}" --delete --no-W --partial-dir="${partialFolderName}" \
@@ -122,13 +123,13 @@ rsync -achvz --progress --timeout="${timeout}" --delete --no-W --partial-dir="${
 # Check rsync success
 if [ "${?}" -eq "0" ]
 then
-	writeToLog "\n[$(date -Is)] Backup completed successfully\n"
+	writeToLog "\n[$(${dateCmd} -Is)] Backup completed successfully\n"
 
 	# Clear unneeded partials and lock file
 	ssh "${remote}" "rm -rf ${partialFolderPath} ${rotationLockFilePath}"
 	rsyncFail=0
 else
-	writeToLog "\n[$(date -Is)] Backup failed, try again later\n"
+	writeToLog "\n[$(${dateCmd} -Is)] Backup failed, try again later\n"
 	rsyncFail=1
 fi
 
