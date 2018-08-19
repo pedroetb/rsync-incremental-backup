@@ -35,6 +35,7 @@ You can set some configuration variables to customize the script:
 * `exclusionFileName`: Name given to the text file that contains exclusion patterns. You must create it inside directory defined by `ownFolderName`.
 * `ownFolderName`: Name given to folder inside user's home to hold configuration files and logs while backup is in progress.
 * `logFolderName`: Directory inside `dst` where the log files are stored.
+* `dateCmd`: Command to run for GNU `date`
 
 All files and folders in backup (local and remote only) get read permissions for all users, since a non-readable backup is useless.
 If you are worried about permissions, you can add a security layer on backup access level (FTP accounts protected with passwords, for example).
