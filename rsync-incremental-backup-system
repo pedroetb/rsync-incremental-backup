@@ -10,10 +10,10 @@ rotationLockFileName=".rsync-rotation-lock"
 pathBakN="backup"
 nameBakN="backup"
 exclusionFileName="exclude.txt"
+dateCmd="date"
 logName="rsync-incremental-backup_$(${dateCmd} -Id)_$(${dateCmd} +%H-%M-%S).log"
 ownFolderName=".rsync-incremental-backup"
 logFolderName="log"
-dateCmd="date"
 
 # Combinate previously defined variables for use (don't touch this)
 ownFolderPath="${HOME}/${ownFolderName}"
