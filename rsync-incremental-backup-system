@@ -43,7 +43,7 @@ writeToLog "********************************"
 i=1
 while [ "${i}" -le "${backupDepth}" ]
 do
-	export bak"${i}"="${dst}"/"${pathBakN}"/"${nameBakN}"."${i}"
+	export "bak${i}"="${dst}/${pathBakN}/${nameBakN}.${i}"
 	true "$((i = i + 1))"
 done
 

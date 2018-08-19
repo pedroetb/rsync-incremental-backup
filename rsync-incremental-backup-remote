@@ -1,5 +1,4 @@
 #!/bin/bash
-# shellcheck disable=SC2029
 
 # Configuration variables (change as you wish)
 src="${1:-/path/to/source}"
@@ -13,7 +12,7 @@ rotationLockFileName=".rsync-rotation-lock"
 pathBakN="backup"
 nameBakN="backup"
 exclusionFileName="exclude.txt"
-dateCmd="gdate"
+dateCmd="date"
 logName="rsync-incremental-backup_$(${dateCmd} -Id)_$(${dateCmd} +%H-%M-%S).log"
 ownFolderName=".rsync-incremental-backup"
 logFolderName="log"
@@ -50,7 +49,7 @@ writeToLog "********************************"
 i=1
 while [ "${i}" -le "${backupDepth}" ]
 do
-	export bak"${i}"="${dst}"/"${pathBakN}"/"${nameBakN}"."${i}"
+	export "bak${i}"="${dst}/${pathBakN}/${nameBakN}.${i}"
 	true "$((i = i + 1))"
 done
 
