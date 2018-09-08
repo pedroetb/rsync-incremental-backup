@@ -21,8 +21,8 @@ For example, it already has omitted temporal, removable and other problematic pa
 
 You can set some configuration variables to customize the script:
 
-* `src`: Path to source directory. Backups will include it's content. Overwritable by parameters.
-* `dst`: Path to target directory. Backups will be placed here. Overwritable by parameters.
+* `src`: Path to source directory. Backups will include it's content. May be a relative or absolute path. Overwritable by parameters.
+* `dst`: Path to target directory. Backups will be placed here. **Must** be an absolute path. Overwritable by parameters.
 * `remote`: *ssh_config* host name to connect to remote host (only for remote version). Overwritable by parameters.
 * `backupDepth`: Number of backups to keep. When limit is reached, the oldest get deleted.
 * `timeout`: Timeout to cancel backup process, if it's not responding.
