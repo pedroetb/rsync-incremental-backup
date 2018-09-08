@@ -58,7 +58,7 @@ writeToLog "\\tfrom:  ${src}"
 writeToLog "\\tto:    ${remoteBak0}"
 
 # Check remote connection
-if ssh -q -o BatchMode=yes -o ConnectTimeout=10 "${remote}" exit
+if ! ssh -q -o BatchMode=yes -o ConnectTimeout=10 "${remote}" exit
 then
 	writeToLog "\\n[$(${dateCmd} -Is)] Remote destination is not reachable"
 	exit 1
