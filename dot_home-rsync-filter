@@ -1,0 +1,56 @@
+## Rsync Filter for $HOME
+
+# Universal excludes -- These apply to all subdirs
+- [Cc]ache
+- temp
+- tmp
+- octave-core
+
+# Emacs temp files
+- .#*
+
+# Exclude certain directories
+
+# Anything in Downloads can be downloaded again, so don't save it
+- /Downloads
+- /Dropbox
+
+# These are too big to include
+- /Music
+- /Videos
+- /Pictures
+- /bioinformatics
+
+# These are transient
+- /temp
+- /.local/share/Trash
+- /.cache
+
+
+# Misc files/dirs to exclude
+- /.abbrev_defs
+- /.adobe
+- /.aspell.en.
+- /.bogofilter
+- /.bzr.log
+- /.compiz/session
+- /.cpanplus
+- /.dbus
+- /.dc_history
+- /.dropbox
+- /.dropbox-dist
+- /.dvdcss
+- /.esd_auth
+- /.fontconfig
+- /.freemind/*.mm
+- /.gimp-2.6/tmp
+- /.gimp-2.6/swap
+- /.gksu.lock
+- /.googleearth/Cache
+- /.googleearth/Temp
+- /.gvfs
+- /.macromedia
+- /.marble/data
+- /.Trash
+- /.usbcreator.log
+- /.xsession-errors*

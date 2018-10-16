@@ -1,0 +1,9 @@
+# Autobackup file
+# Target mount path
+/data
+# Target backup path on mount
+/Backups/test
+# List of directories to backup sourcedir@targetdir
+/data/GoogleDrive
+/home/juan/SpiderOak Hive
+#/data/Dropbox

@@ -1,0 +1,11 @@
+# Autobackup file
+# Target mount path
+/media/juan/xvms
+# Target backup path on mount
+/backup/rdiffbackup
+# List of directories to backup sourcedir@targetdir
+/data/Dropbox
+/data/GoogleDrive
+/data/ownCloud
+/data/SpiderOak Hive
+/home/juan/SpiderOak Hive
