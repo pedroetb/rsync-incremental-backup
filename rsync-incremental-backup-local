@@ -3,17 +3,17 @@
 # Configuration variables (change as you wish)
 src="${1:-/path/to/source}"
 dst="${2:-/path/to/target}"
-backupDepth=7
-timeout=1800
-pathBak0="data"
-rotationLockFileName=".rsync-rotation-lock"
-pathBakN="backup"
-nameBakN="backup"
-exclusionFileName="exclude.txt"
-dateCmd="date"
-logName="rsync-incremental-backup_$(${dateCmd} -Id)_$(${dateCmd} +%H-%M-%S).log"
-ownFolderName=".rsync-incremental-backup"
-logFolderName="log"
+backupDepth=${backupDepth:=7}
+timeout=${timeout:=1800}
+pathBak0="${pathBak0:-data}"
+rotationLockFileName="${rotationLockFileName:-.rsync-rotation-lock}"
+pathBakN="${pathBakN:-backup}"
+nameBakN="${nameBakN:-backup}"
+exclusionFileName="${exclusionFileName:-exclude.txt}"
+dateCmd="${dateCmd:-date}"
+logName="${logName:-rsync-incremental-backup_$(${dateCmd} -Id)_$(${dateCmd} +%H-%M-%S).log}"
+ownFolderName="${ownFolderName:-.rsync-incremental-backup}"
+logFolderName="${logFolderName:-log}"
 
 # Combinate previously defined variables for use (don't touch this)
 ownFolderPath="${HOME}/${ownFolderName}"
