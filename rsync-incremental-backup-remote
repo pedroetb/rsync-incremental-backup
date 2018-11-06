@@ -16,6 +16,7 @@ dateCmd="${dateCmd:-date}"
 logName="${logName:-rsync-incremental-backup_$(${dateCmd} -Id)_$(${dateCmd} +%H-%M-%S).log}"
 ownFolderName="${ownFolderName:-.rsync-incremental-backup}"
 logFolderName="${logFolderName:-log}"
+interactiveMode="${interactiveMode:-no}"
 
 # Combinate previously defined variables for use (don't touch this)
 ownFolderPath="${HOME}/${ownFolderName}"
@@ -62,8 +63,14 @@ sshParams=(-o "ControlPath=\"${ownFolderPath}/ssh_connection_socket_%h_%p_%r\"" 
 # rsync parameters to use remote shell with our socket. Need to escape ssh params for proper space handling (eg. $ownFolderPath in ControlPath)
 rsyncParams=(-e "ssh$(for i in "${sshParams[@]}"; do echo -n " '"${i}"'"; done)") 
 
+batchMode="yes"
+if [ "${interactiveMode}" == "yes" ]
+then
+	batchMode="no"
+fi
+
 # Check remote connection
-if ! ssh "${sshParams[@]}" -q -o BatchMode=yes -o ConnectTimeout=10 "${remote}" exit
+if ! ssh "${sshParams[@]}" -q -o BatchMode="${batchMode}" -o ConnectTimeout=10 "${remote}" exit
 then
 	writeToLog "\\n[$(${dateCmd} -Is)] Remote destination is not reachable"
 	exit 1
