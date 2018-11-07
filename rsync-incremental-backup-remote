@@ -69,13 +69,12 @@ then
 	batchMode="no"
 fi
 
-# Check remote connection
+# Check remote connection and create master socket connection
 if ! ssh "${sshParams[@]}" -q -o BatchMode="${batchMode}" -o ConnectTimeout=10 "${remote}" exit
 then
 	writeToLog "\\n[$(${dateCmd} -Is)] Remote destination is not reachable"
 	exit 1
 fi
-#TODO close socket on exit
 
 # Prepare paths at destination
 ssh "${sshParams[@]}" "${remote}" "mkdir -p ${dst} ${logPath}"
@@ -148,5 +147,8 @@ if scp "${sshParams[@]}" "${logFile}" "${remoteLogPath}"
 then
 	rm "${logFile}"
 fi
+
+# close master socket connection quietly
+ssh "${sshParams[@]}" -q -O exit "${remote}"
 
 exit "${rsyncFail}"
