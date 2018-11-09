@@ -4,18 +4,19 @@
 src="${1:-/path/to/source}"
 dst="${2:-/path/to/target}"
 remote="${3:-ssh_remote}"
-backupDepth=7
-timeout=1800
-pathBak0="data"
-partialFolderName=".rsync-partial"
-rotationLockFileName=".rsync-rotation-lock"
-pathBakN="backup"
-nameBakN="backup"
-exclusionFileName="exclude.txt"
-dateCmd="date"
-logName="rsync-incremental-backup_$(${dateCmd} -Id)_$(${dateCmd} +%H-%M-%S).log"
-ownFolderName=".rsync-incremental-backup"
-logFolderName="log"
+backupDepth=${backupDepth:=7}
+timeout=${timeout:=1800}
+pathBak0="${pathBak0:-data}"
+partialFolderName="${partialFolderName:-.rsync-partial}"
+rotationLockFileName="${rotationLockFileName:-.rsync-rotation-lock}"
+pathBakN="${pathBakN:-backup}"
+nameBakN="${nameBakN:-backup}"
+exclusionFileName="${exclusionFileName:-exclude.txt}"
+dateCmd="${dateCmd:-date}"
+logName="${logName:-rsync-incremental-backup_$(${dateCmd} -Id)_$(${dateCmd} +%H-%M-%S).log}"
+ownFolderName="${ownFolderName:-.rsync-incremental-backup}"
+logFolderName="${logFolderName:-log}"
+interactiveMode="${interactiveMode:-no}"
 
 # Combinate previously defined variables for use (don't touch this)
 ownFolderPath="${HOME}/${ownFolderName}"
@@ -57,29 +58,40 @@ writeToLog "\\n[$(${dateCmd} -Is)] You are going to backup"
 writeToLog "\\tfrom:  ${src}"
 writeToLog "\\tto:    ${remoteBak0}"
 
-# Check remote connection
-if ! ssh -q -o BatchMode=yes -o ConnectTimeout=10 "${remote}" exit
+# ssh parameters for auto creation and usage of a socket. The socket will be created in $ownFolderPath and will last 10 seconds after last socket connection is closed
+sshParams=(-o "ControlPath=\"${ownFolderPath}/ssh_connection_socket_%h_%p_%r\"" -o ControlMaster=auto -o ControlPersist=10) 
+# rsync parameters to use remote shell with our socket. Need to escape ssh params for proper space handling (eg. $ownFolderPath in ControlPath)
+rsyncParams=(-e "ssh$(for i in "${sshParams[@]}"; do echo -n " '"${i}"'"; done)") 
+
+batchMode="yes"
+if [ "${interactiveMode}" == "yes" ]
+then
+	batchMode="no"
+fi
+
+# Check remote connection and create master socket connection
+if ! ssh "${sshParams[@]}" -q -o BatchMode="${batchMode}" -o ConnectTimeout=10 "${remote}" exit
 then
 	writeToLog "\\n[$(${dateCmd} -Is)] Remote destination is not reachable"
 	exit 1
 fi
 
 # Prepare paths at destination
-ssh "${remote}" "mkdir -p ${dst} ${logPath}"
+ssh "${sshParams[@]}" "${remote}" "mkdir -p ${dst} ${logPath}"
 
 writeToLog "\\n[$(${dateCmd} -Is)] Old logs sending begins\\n"
 
 # Send old pending logs to destination
-rsync -rhvz --remove-source-files --exclude="${logName}" --log-file="${logFile}" \
+rsync "${rsyncParams[@]}" -rhvz --remove-source-files --exclude="${logName}" --log-file="${logFile}" \
 "${tempLogPath}/" "${remoteLogPath}/"
 
 writeToLog "\\n[$(${dateCmd} -Is)] Old logs sending finished"
 
 # Rotate backups if last rsync succeeded ..
-if (ssh "${remote}" "[ ! -d ${partialFolderPath} ] && [ ! -e ${rotationLockFilePath} ]")
+if (ssh "${sshParams[@]}" "${remote}" "[ ! -d ${partialFolderPath} ] && [ ! -e ${rotationLockFilePath} ]")
 then
 	# .. and there is previous data
-	if (ssh "${remote}" "[ -d ${bak0} ]")
+	if (ssh "${sshParams[@]}" "${remote}" "[ -d ${bak0} ]")
 	then
 		writeToLog "\\n[$(${dateCmd} -Is)] Backups rotation begins"
 
@@ -87,7 +99,7 @@ then
 
 		# Remove the oldest backup if exists
 		bak="bak${i}"
-		ssh "${remote}" "rm -rf ${!bak}"
+		ssh "${sshParams[@]}" "${remote}" "rm -rf ${!bak}"
 
 		# Rotate the previous backups
 		while [ "${i}" -gt 0 ]
@@ -95,9 +107,9 @@ then
 			bakNewPath="bak${i}"
 			true "$((i = i - 1))"
 			bakOldPath="bak${i}"
-			if (ssh "${remote}" "[ -d ${!bakOldPath} ]")
+			if (ssh "${sshParams[@]}" "${remote}" "[ -d ${!bakOldPath} ]")
 			then
-				ssh "${remote}" "mv ${!bakOldPath} ${!bakNewPath}"
+				ssh "${sshParams[@]}" "${remote}" "mv ${!bakOldPath} ${!bakNewPath}"
 			fi
 		done
 
@@ -110,12 +122,12 @@ else
 fi
 
 # Set rotation lock file to detect in next run when backup fails
-ssh "${remote}" "touch ${rotationLockFilePath}"
+ssh "${sshParams[@]}" "${remote}" "touch ${rotationLockFilePath}"
 
 writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 
 # Do the backup
-if rsync -achvz --progress --timeout="${timeout}" --delete --no-W --partial-dir="${partialFolderName}" \
+if rsync "${rsyncParams[@]}" -achvz --progress --timeout="${timeout}" --delete --no-W --partial-dir="${partialFolderName}" \
 --link-dest="${bak1}/" --log-file="${logFile}" --exclude="${ownFolderPath}" --chmod=+r \
 --exclude-from="${exclusionFilePath}" "${src}/" "${remoteBak0}/"
 
@@ -123,7 +135,7 @@ then
 	writeToLog "\\n[$(${dateCmd} -Is)] Backup completed successfully\\n"
 
 	# Clear unneeded partials and lock file
-	ssh "${remote}" "rm -rf ${partialFolderPath} ${rotationLockFilePath}"
+	ssh "${sshParams[@]}" "${remote}" "rm -rf ${partialFolderPath} ${rotationLockFilePath}"
 	rsyncFail=0
 else
 	writeToLog "\\n[$(${dateCmd} -Is)] Backup failed, try again later\\n"
@@ -131,9 +143,12 @@ else
 fi
 
 # Send the complete log file to destination
-if scp "${logFile}" "${remoteLogPath}"
+if scp "${sshParams[@]}" "${logFile}" "${remoteLogPath}"
 then
 	rm "${logFile}"
 fi
+
+# close master socket connection quietly
+ssh "${sshParams[@]}" -q -O exit "${remote}"
 
 exit "${rsyncFail}"

@@ -36,6 +36,7 @@ You can set some configuration variables to customize the script:
 * `ownFolderName`: Name given to folder inside user's home to hold configuration files and logs while backup is in progress.
 * `logFolderName`: Directory inside `dst` where the log files are stored.
 * `dateCmd`: Command to run for GNU `date`
+* `interactiveMode`: Set to `yes` to allow password login (only for remote version).
 
 All files and folders in backup (local and remote only) get read permissions for all users, since a non-readable backup is useless.
 If you are worried about permissions, you can add a security layer on backup access level (FTP accounts protected with passwords, for example).
@@ -58,6 +59,10 @@ I won't go into more detailed explanation on this, but here are some good refere
 
 After that, you should use the `Host` value from your *ssh config file* as the `remote` value in the script.
 
+If you really need to use this script without SSH keys authentication, don't worry.
+You can set the `interactiveMode` configuration variable to `yes` and you will be prompted for password if needed and only once.
+This is useful for manual backup, which requires authentication via passphrase.
+
 ### Customizing configuration values
 
 You have to set, at least, `src` and `dst` (and `remote` in remote version) values, directly in the scripts or by positional parameters when running them:
@@ -69,6 +74,9 @@ You have to set, at least, `src` and `dst` (and `remote` in remote version) valu
 If you want to exclude some files or directories from backup, add their paths (relative to backup root) to the text file referenced by `exclusionFileName`.
 
 Once configured with your own variable values, you can simply run the script to begin the backup process.
+
+In addition, all configuration variables, except those who are overwritable by parameters (`src`, `dst`, `remote`), can be changed from outside by setting the variable before script execution.
+For example, changing `ownFolderName` variable without editing script: `$ ownFolderName=".backup" rsync-incremental-backup-remote /path/to/src /path/to/dst user@remote`
 
 ### Automating backups
 
