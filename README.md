@@ -36,7 +36,7 @@ You can set some configuration variables to customize the script:
 * `ownFolderName`: Name given to folder inside user's home to hold configuration files and logs while backup is in progress.
 * `logFolderName`: Directory inside `dst` where the log files are stored.
 * `dateCmd`: Command to run for GNU `date`
-* `interactiveMode`: Set to `yes` to allow password login (only for remote version).
+* `interactiveMode`: Flag to allow password login, when set to `yes` (only for remote version).
 
 All files and folders in backup (local and remote only) get read permissions for all users, since a non-readable backup is useless.
 If you are worried about permissions, you can add a security layer on backup access level (FTP accounts protected with passwords, for example).
@@ -60,23 +60,31 @@ I won't go into more detailed explanation on this, but here are some good refere
 After that, you should use the `Host` value from your *ssh config file* as the `remote` value in the script.
 
 If you really need to use this script without SSH keys authentication, don't worry.
-You can set the `interactiveMode` configuration variable to `yes` and you will be prompted for password if needed and only once.
-This is useful for manual backup, which requires authentication via passphrase.
+You can set the `interactiveMode` configuration variable to `yes`, and you will be prompted for password (only once) if needed.
+This is useful for manual backup, when remote server requires authentication via passphrase.
 
 ### Customizing configuration values
 
 You have to set, at least, `src` and `dst` (and `remote` in remote version) values, directly in the scripts or by positional parameters when running them:
 
-* `./rsync-incremental-backup-local /new/path/to/source /new/path/to/target` (`src` and `dst`).
-* `./rsync-incremental-backup-remote /new/path/to/source /new/path/to/target new_ssh_remote` (`src`, `dst` and `remote`).
-* `./rsync-incremental-backup-system /mnt/new/path/to/target` (only `dst`, `src` is always *root* on this case).
+* `$ ./rsync-incremental-backup-local /new/path/to/source /new/path/to/target` (`src` and `dst`).
+* `$ ./rsync-incremental-backup-remote /new/path/to/source /new/path/to/target new_ssh_remote` (`src`, `dst` and `remote`).
+* `$ ./rsync-incremental-backup-system /mnt/new/path/to/target` (only `dst`, `src` is always *root* on this case).
 
 If you want to exclude some files or directories from backup, add their paths (relative to backup root) to the text file referenced by `exclusionFileName`.
 
 Once configured with your own variable values, you can simply run the script to begin the backup process.
 
-In addition, all configuration variables, except those who are overwritable by parameters (`src`, `dst`, `remote`), can be changed from outside by setting the variable before script execution.
-For example, changing `ownFolderName` variable without editing script: `$ ownFolderName=".backup" rsync-incremental-backup-remote /path/to/src /path/to/dst user@remote`
+In addition, all configuration variables, except those who are overwritable by parameters (`src`, `dst` and `remote`), can be changed from outside by setting the variable before script execution (or exporting it as an environment variable).
+For example, changing `ownFolderName` variable without editing script:
+
+```
+$ ownFolderName=".backup" rsync-incremental-backup-remote /path/to/src /path/to/dst user@remote
+
+# Or using an environment variable (maybe set at user session startup)
+$ export ownFolderName=".backup"
+$ rsync-incremental-backup-remote /path/to/src /path/to/dst user@remote
+```
 
 ### Automating backups
 
@@ -87,9 +95,7 @@ To use anacron in user mode, you have to follow these steps:
 * Create an `.anacron` folder in your home directory with subfolders `etc` and `spool`.
 
 ```
-mkdir ~/.anacron
-mkdir ~/.anacron/etc
-mkdir ~/.anacron/spool
+$ mkdir -p ~/.anacron/etc ~/.anacron/spool
 ```
 
 * Create an `anacrontab` file at `~/.anacron/etc` with this content (or equivalent, be sure to specify the right path to script):
