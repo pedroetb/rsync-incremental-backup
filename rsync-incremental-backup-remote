@@ -60,7 +60,7 @@ writeToLog "\\tto:    ${remoteBak0}"
 
 # Prepare ssh parameters for socket connection, reused by following sessions
 sshParams=(-o "ControlPath=\"${ownFolderPath}/ssh_connection_socket_%h_%p_%r\"" -o "ControlMaster=auto" \
-	-o "ControlPersist=${timeout}")
+	-o "ControlPersist=10")
 
 # Prepare rsync transport shell with ssh parameters (escape for proper space handling)
 rsyncShellParams=(-e "ssh$(for i in "${sshParams[@]}"; do echo -n " '${i}'"; done)")
