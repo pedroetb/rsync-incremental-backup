@@ -102,7 +102,7 @@ touch "${rotationLockFilePath}"
 writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 
 # Do the backup (with mandatory exclusions)
-if rsync -aAXhv --progress --timeout="${timeout}" --delete -W --link-dest="${bak1}/" \
+if rsync -aAhv --progress --timeout="${timeout}" --delete -W --link-dest="${bak1}/" \
 	--log-file="${logFile}" --exclude="${ownFolderPath}" --exclude-from="${exclusionFilePath}" \
 	--exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} \
 	"${src}/" "${bak0}/"

@@ -152,7 +152,6 @@ Log files per backup operation will be stored at `<dst>/log`.
 
 * Used only for system backup:
 	* `-A`: preserve ACLs (implies -p).
-	* `-X`: preserve extended attributes.
 
 * Used only for log sending:
 	* `-r`: recurse into directories.
