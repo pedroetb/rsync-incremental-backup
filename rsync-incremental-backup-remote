@@ -12,7 +12,7 @@ rotationLockFileName="${rotationLockFileName:-.rsync-rotation-lock}"
 pathBakN="${pathBakN:-backup}"
 nameBakN="${nameBakN:-backup}"
 exclusionFileName="${exclusionFileName:-exclude.txt}"
-source_fileFileName="${source_fileFileName:-source_file.txt}"
+inclusionFileName="${inclusionFileName:-include.txt}"
 dateCmd="${dateCmd:-date}"
 logName="${logName:-rsync-incremental-backup_$(${dateCmd} +%Y-%m-%d)_$(${dateCmd} +%H-%M-%S).log}"
 ownFolderName="${ownFolderName:-.rsync-incremental-backup}"
@@ -23,7 +23,7 @@ interactiveMode="${interactiveMode:-no}"
 ownFolderPath="${HOME}/${ownFolderName}"
 tempLogPath="${ownFolderPath}/${remote}_${dst//[\/]/\\}"
 exclusionFilePath="${ownFolderPath}/${exclusionFileName}"
-source_fileFilePath="${ownFolderPath}/${source_fileFileName}"
+inclusionFilePath="${ownFolderPath}/${inclusionFileName}"
 remoteDst="${remote}:${dst}"
 bak0="${dst}/${pathBak0}"
 remoteBak0="${remoteDst}/${pathBak0}"
@@ -37,7 +37,7 @@ logFile="${tempLogPath}/${logName}"
 mkdir -p "${tempLogPath}"
 touch "${logFile}"
 touch "${exclusionFilePath}"
-touch "${source_fileFilePath}"
+touch "${inclusionFilePath}"
 
 writeToLog() {
 	echo -e "${1}" | tee -a "${logFile}"
@@ -134,7 +134,7 @@ writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 # Do the backup
 if rsync "${rsyncShellParams[@]}" -achvz --progress --timeout="${timeout}" --delete --no-W \
 	--partial-dir="${partialFolderName}" --link-dest="${bak1}/" --log-file="${logFile}" --exclude="${ownFolderPath}" \
-	--chmod=+r --exclude-from="${exclusionFilePath}" --files-from="${source_fileFilePath}" "${src}/" "${remoteBak0}/"
+	--chmod=+r --exclude-from="${exclusionFilePath}" --include-from="${inclusionFilePath}" "${src}/" "${remoteBak0}/"
 then
 	writeToLog "\\n[$(${dateCmd} -Is)] Backup completed successfully\\n"
 

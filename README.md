@@ -33,7 +33,7 @@ You can set some configuration variables to customize the script:
 * `nameBakN`: Name of incremental backup directories. An index will be added at the end to show how old they are.
 * `logName`: Name given to log file generated at backup.
 * `exclusionFileName`: Name given to the text file that contains exclusion patterns. You must create it inside directory defined by `ownFolderName`.
-* `source_fileFileName`: Name given to the text file that contains list of source-file names. You must create it inside directory defined by `ownFolderName`.
+* `inclusionFileName`: Name given to the text file that contains inclusion patterns. You must create it inside directory defined by `ownFolderName`.
 * `ownFolderName`: Name given to folder inside user's home to hold configuration files and logs while backup is in progress.
 * `logFolderName`: Directory inside `dst` where the log files are stored.
 * `dateCmd`: Command to run for GNU `date`
@@ -143,7 +143,7 @@ Log files per backup operation will be stored at `<dst>/log`.
 * `--chmod`: affect file and/or directory permissions.
 * `--exclude`: exclude files matching pattern.
 * `--exclude-from`: same as `--exclude`, but getting patterns from specified file.
-* `--files-from`: read list of source-file names from `source_fileFileName`
+* `--include-from`: get patterns from specified file.
 
 * Used only for remote backup:
 	* `--no-W`: ensures that rsync's delta-transfer algorithm is used, so it never transfers whole files if they are present at target. Omit only when you have a high bandwidth to target, backup may be faster.
