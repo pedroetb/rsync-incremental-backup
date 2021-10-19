@@ -2,6 +2,8 @@
 
 Configurable bash scripts to send incremental backups of your data to a local or remote target, using [rsync](https://download.samba.org/pub/rsync/rsync.html).
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Sponsor](https://img.shields.io/badge/-Sponsor-fafbfc?logo=GitHub%20Sponsors)](https://github.com/sponsors/pedroetb)
 
 ## Description
 
@@ -15,7 +17,6 @@ If a backup process gets interrupted, don't worry. You can continue it in the ne
 
 In addition, there is a local backup script with special configuration, oriented to do backups for a GNU/Linux filesystem.
 For example, it already has omitted temporal, removable and other problematic paths, and is meant to backup to a external mount point (at `/mnt`).
-
 
 ## Configuration
 
@@ -43,7 +44,6 @@ If you are worried about permissions, you can add a security layer on backup acc
 You can also preserve original files and folders permissions removing the `--chmod=+r` flag from script.
 In system backup, the original permissions are preserved by default.
 
-
 ## Usage
 
 ### Setting up *ssh_config* (for remote version)
@@ -67,9 +67,9 @@ This is useful for manual backup, when remote server requires authentication via
 
 You have to set, at least, `src` and `dst` (and `remote` in remote version) values, directly in the scripts or by positional parameters when running them:
 
-* `$ ./rsync-incremental-backup-local /new/path/to/source /new/path/to/target` (`src` and `dst`).
-* `$ ./rsync-incremental-backup-remote /new/path/to/source /new/path/to/target new_ssh_remote` (`src`, `dst` and `remote`).
-* `$ ./rsync-incremental-backup-system /mnt/new/path/to/target` (only `dst`, `src` is always *root* on this case).
+* `./rsync-incremental-backup-local /new/path/to/source /new/path/to/target` (`src` and `dst`).
+* `./rsync-incremental-backup-remote /new/path/to/source /new/path/to/target new_ssh_remote` (`src`, `dst` and `remote`).
+* `./rsync-incremental-backup-system /mnt/new/path/to/target` (only `dst`, `src` is always *root* on this case).
 
 If you want to exclude some files or directories from backup, add their paths (relative to backup root) to the text file referenced by `exclusionFileName`.
 
@@ -78,12 +78,12 @@ Once configured with your own variable values, you can simply run the script to 
 In addition, all configuration variables, except those who are overwritable by parameters (`src`, `dst` and `remote`), can be changed from outside by setting the variable before script execution (or exporting it as an environment variable).
 For example, changing `ownFolderName` variable without editing script:
 
-```
-$ ownFolderName=".backup" rsync-incremental-backup-remote /path/to/src /path/to/dst user@remote
+```sh
+ownFolderName=".backup" rsync-incremental-backup-remote /path/to/src /path/to/dst user@remote
 
 # Or using an environment variable (maybe set at user session startup)
-$ export ownFolderName=".backup"
-$ rsync-incremental-backup-remote /path/to/src /path/to/dst user@remote
+export ownFolderName=".backup"
+rsync-incremental-backup-remote /path/to/src /path/to/dst user@remote
 ```
 
 ### Automating backups
@@ -94,13 +94,13 @@ To use anacron in user mode, you have to follow these steps:
 
 * Create an `.anacron` folder in your home directory with subfolders `etc` and `spool`.
 
-```
-$ mkdir -p ~/.anacron/etc ~/.anacron/spool
+```sh
+mkdir -p ~/.anacron/etc ~/.anacron/spool
 ```
 
 * Create an `anacrontab` file at `~/.anacron/etc` with this content (or equivalent, be sure to specify the right path to script):
 
-```
+```sh
 # /etc/anacrontab: configuration file for anacron
 
 # See anacron(8) and anacrontab(5) for details.
@@ -115,7 +115,7 @@ START_HOURS_RANGE=8-22
 
 * Make your anacron start at login. Add this content at the end of to your `~/.profile` file:
 
-```
+```sh
 # User anacron
 /usr/sbin/anacron -s -t ${HOME}/.anacron/etc/anacrontab -S ${HOME}/.anacron/spool
 ```
@@ -125,7 +125,6 @@ START_HOURS_RANGE=8-22
 If you are using the default folder names, the newest data backup will be inside `<dst>/data`.
 The second newest backup will be inside `<dst>/backup/backup.1`, next will be inside `<dst>/backup/backup.2` and so on.
 Log files per backup operation will be stored at `<dst>/log`.
-
 
 ## Used *rsync* flags explanation
 
@@ -144,24 +143,28 @@ Log files per backup operation will be stored at `<dst>/log`.
 * `--exclude-from`: same as `--exclude`, but getting patterns from specified file.
 
 * Used only for remote backup:
-	* `--no-W`: ensures that rsync's delta-transfer algorithm is used, so it never transfers whole files if they are present at target. Omit only when you have a high bandwidth to target, backup may be faster.
-	* `--partial-dir`: put a partially transferred file into specified directory, instead of using a hidden file in the original path of transferred file. Mandatory for allow partial transfers and avoid misleads with incomplete/corrupt files.
+  * `--no-W`: ensures that rsync's delta-transfer algorithm is used, so it never transfers whole files if they are present at target. Omit only when you have a high bandwidth to target, backup may be faster.
+  * `--partial-dir`: put a partially transferred file into specified directory, instead of using a hidden file in the original path of transferred file. Mandatory for allow partial transfers and avoid misleads with incomplete/corrupt files.
 
 * Used only for local backups:
-	* `-W`: ignores rsync's delta-transfer algorithm, so it always transfers whole files. When you have a high bandwidth to target (local filesystem or LAN), backup may be faster.
+  * `-W`: ignores rsync's delta-transfer algorithm, so it always transfers whole files. When you have a high bandwidth to target (local filesystem or LAN), backup may be faster.
 
 * Used only for system backup:
-	* `-A`: preserve ACLs (implies -p).
+  * `-A`: preserve ACLs (implies -p).
 
 * Used only for log sending:
-	* `-r`: recurse into directories.
-	* `--remove-source-files`: sender removes synchronized files (non-dir).
+  * `-r`: recurse into directories.
+  * `--remove-source-files`: sender removes synchronized files (non-dir).
 
+## License
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+This project is released under the [MIT License](LICENSE).
 
 ## References
 
 This was inspired by:
 
-* [Incremental Backups on Linux](http://www.admin-magazine.com/Articles/Using-rsync-for-Backups).
-* [Rsync full system backup](https://wiki.archlinux.org/index.php/Rsync#Full_system_backup).
+* [Incremental Backups on Linux](http://www.admin-magazine.com/Articles/Using-rsync-for-Backups)
+* [Rsync full system backup](https://wiki.archlinux.org/index.php/Rsync#Full_system_backup)
