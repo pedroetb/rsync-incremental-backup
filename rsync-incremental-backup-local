@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# v1.1.0-rc1
+# v1.1.0-rc2
 
 # Configuration variables (change as you wish)
 src="${1:-/path/to/source}"
@@ -105,9 +105,12 @@ touch "${rotationLockFilePath}"
 writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 
 # Do the backup
-if rsync -achv --progress --timeout="${timeout}" --delete -W --link-dest="${bak1}/" \
+rsync -achv --progress --timeout="${timeout}" --delete -W --link-dest="${bak1}/" \
 	--log-file="${logFile}" --exclude="${ownFolderName}/" --chmod=+r \
 	--exclude-from="${exclusionFilePath}" ${additionalFlags} "${src}/" "${bak0}/"
+
+rsyncExitCode=${?}
+if [ ${rsyncExitCode} -eq 0 ] || [ ${rsyncExitCode} -eq 24 ]
 then
 	writeToLog "\\n[$(${dateCmd} -Is)] Backup completed successfully\\n"
 
