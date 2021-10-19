@@ -133,7 +133,7 @@ writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 
 # Do the backup
 if rsync "${rsyncShellParams[@]}" -achvz --progress --timeout="${timeout}" --delete --no-W \
-	--partial-dir="${partialFolderName}" --link-dest="${bak1}/" --log-file="${logFile}" --exclude="${ownFolderPath}" \
+	--partial-dir="${partialFolderName}" --link-dest="${bak1}/" --log-file="${logFile}" --exclude="${ownFolderName}/" \
 	--chmod=+r --exclude-from="${exclusionFilePath}" ${additionalFlags} "${src}/" "${remoteBak0}/"
 then
 	writeToLog "\\n[$(${dateCmd} -Is)] Backup completed successfully\\n"

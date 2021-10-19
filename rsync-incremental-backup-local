@@ -106,7 +106,7 @@ writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 
 # Do the backup
 if rsync -achv --progress --timeout="${timeout}" --delete -W --link-dest="${bak1}/" \
-	--log-file="${logFile}" --exclude="${ownFolderPath}" --chmod=+r \
+	--log-file="${logFile}" --exclude="${ownFolderName}/" --chmod=+r \
 	--exclude-from="${exclusionFilePath}" ${additionalFlags} "${src}/" "${bak0}/"
 then
 	writeToLog "\\n[$(${dateCmd} -Is)] Backup completed successfully\\n"

@@ -106,7 +106,7 @@ writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 
 # Do the backup (with mandatory exclusions)
 if rsync -aAhv --progress --timeout="${timeout}" --delete -W --link-dest="${bak1}/" \
-	--log-file="${logFile}" --exclude="${ownFolderPath}" --exclude-from="${exclusionFilePath}" \
+	--log-file="${logFile}" --exclude="${ownFolderName}/" --exclude-from="${exclusionFilePath}" \
 	--exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} \
 	${additionalFlags} "${src}/" "${bak0}/"
 then
