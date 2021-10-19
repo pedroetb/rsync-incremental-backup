@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# v1.0.2
+# v1.1.0-rc1
 
 # Configuration variables (change as you wish)
 src="/"
@@ -16,6 +16,7 @@ dateCmd="${dateCmd:-date}"
 logName="${logName:-rsync-incremental-backup_$(${dateCmd} +%Y-%m-%d)_$(${dateCmd} +%H-%M-%S).log}"
 ownFolderName="${ownFolderName:-.rsync-incremental-backup}"
 logFolderName="${logFolderName:-log}"
+additionalFlags="${additionalFlags:-}"
 
 # Combinate previously defined variables for use (don't touch this)
 ownFolderPath="${HOME}/${ownFolderName}"
@@ -107,7 +108,7 @@ writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 if rsync -aAhv --progress --timeout="${timeout}" --delete -W --link-dest="${bak1}/" \
 	--log-file="${logFile}" --exclude="${ownFolderPath}" --exclude-from="${exclusionFilePath}" \
 	--exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} \
-	"${src}/" "${bak0}/"
+	${additionalFlags} "${src}/" "${bak0}/"
 then
 	writeToLog "\\n[$(${dateCmd} -Is)] Backup completed successfully\\n"
 

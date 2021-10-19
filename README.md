@@ -38,6 +38,7 @@ You can set some configuration variables to customize the script:
 * `logFolderName`: Directory inside `dst` where the log files are stored.
 * `dateCmd`: Command to run for GNU `date`
 * `interactiveMode`: Flag to allow password login, when set to `yes` (only for remote version).
+* `additionalFlags`: Additional parameters for rsync command, separated by space.
 
 All files and folders in backup (local and remote only) get read permissions for all users, since a non-readable backup is useless.
 If you are worried about permissions, you can add a security layer on backup access level (FTP accounts protected with passwords, for example).

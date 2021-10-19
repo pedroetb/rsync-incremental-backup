@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# v1.0.2
+# v1.1.0-rc1
 
 # Configuration variables (change as you wish)
 src="${1:-/path/to/source}"
@@ -16,6 +16,7 @@ dateCmd="${dateCmd:-date}"
 logName="${logName:-rsync-incremental-backup_$(${dateCmd} +%Y-%m-%d)_$(${dateCmd} +%H-%M-%S).log}"
 ownFolderName="${ownFolderName:-.rsync-incremental-backup}"
 logFolderName="${logFolderName:-log}"
+additionalFlags="${additionalFlags:-}"
 
 # Combinate previously defined variables for use (don't touch this)
 ownFolderPath="${HOME}/${ownFolderName}"
@@ -106,7 +107,7 @@ writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 # Do the backup
 if rsync -achv --progress --timeout="${timeout}" --delete -W --link-dest="${bak1}/" \
 	--log-file="${logFile}" --exclude="${ownFolderPath}" --chmod=+r \
-	--exclude-from="${exclusionFilePath}" "${src}/" "${bak0}/"
+	--exclude-from="${exclusionFilePath}" ${additionalFlags} "${src}/" "${bak0}/"
 then
 	writeToLog "\\n[$(${dateCmd} -Is)] Backup completed successfully\\n"
 
