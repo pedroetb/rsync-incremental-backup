@@ -11,6 +11,7 @@ pathBak0="${pathBak0:-data}"
 rotationLockFileName="${rotationLockFileName:-.rsync-rotation-lock}"
 pathBakN="${pathBakN:-backup}"
 nameBakN="${nameBakN:-backup}"
+inclusionFileName="${inclusionFileName:-include.txt}"
 exclusionFileName="${exclusionFileName:-exclude.txt}"
 dateCmd="${dateCmd:-date}"
 logName="${logName:-rsync-incremental-backup_$(${dateCmd} +%Y-%m-%d)_$(${dateCmd} +%H-%M-%S).log}"
@@ -24,6 +25,7 @@ useChecksum="${useChecksum:-1}"
 ownFolderPath="${HOME}/${ownFolderName}"
 tempLogPath="${ownFolderPath}/local_${dst//[\/]/\\}"
 exclusionFilePath="${ownFolderPath}/${exclusionFileName}"
+inclusionFilePath="${ownFolderPath}/${inclusionFileName}"
 bak0="${dst}/${pathBak0}"
 rotationLockFilePath="${dst}/${rotationLockFileName}"
 logPath="${dst}/${pathBakN}/${logFolderName}"
@@ -40,6 +42,7 @@ fi
 mkdir -p "${tempLogPath}"
 touch "${logFile}"
 touch "${exclusionFilePath}"
+touch "${inclusionFilePath}"
 
 writeToLog() {
 	echo -e "${1}" | tee -a "${logFile}"
@@ -133,7 +136,7 @@ writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 
 # Do the backup
 rsync -ahv${checksumFlag} --progress --timeout="${timeout}" --delete -W --link-dest="${bak1}/" \
-	--log-file="${logFile}" --exclude="${ownFolderName}/" --chmod=+r \
+	--log-file="${logFile}" --exclude="${ownFolderName}/" --chmod=+r --include-from="${inclusionFilePath}" \
 	--exclude-from="${exclusionFilePath}" ${additionalFlags} "${src}/" "${bak0}/"
 
 rsyncExitCode=${?}

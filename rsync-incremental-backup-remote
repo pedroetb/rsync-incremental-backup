@@ -13,6 +13,7 @@ partialFolderName="${partialFolderName:-.rsync-partial}"
 rotationLockFileName="${rotationLockFileName:-.rsync-rotation-lock}"
 pathBakN="${pathBakN:-backup}"
 nameBakN="${nameBakN:-backup}"
+inclusionFileName="${inclusionFileName:-include.txt}"
 exclusionFileName="${exclusionFileName:-exclude.txt}"
 dateCmd="${dateCmd:-date}"
 logName="${logName:-rsync-incremental-backup_$(${dateCmd} +%Y-%m-%d)_$(${dateCmd} +%H-%M-%S).log}"
@@ -28,6 +29,7 @@ useCompression="${useCompression:-1}"
 ownFolderPath="${HOME}/${ownFolderName}"
 tempLogPath="${ownFolderPath}/${remote}_${dst//[\/]/\\}"
 exclusionFilePath="${ownFolderPath}/${exclusionFileName}"
+inclusionFilePath="${ownFolderPath}/${inclusionFileName}"
 remoteDst="${remote}:${dst}"
 bak0="${dst}/${pathBak0}"
 remoteBak0="${remoteDst}/${pathBak0}"
@@ -55,6 +57,7 @@ fi
 mkdir -p "${tempLogPath}"
 touch "${logFile}"
 touch "${exclusionFilePath}"
+touch "${inclusionFilePath}"
 
 writeToLog() {
 	echo -e "${1}" | tee -a "${logFile}"
@@ -171,7 +174,8 @@ writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 # Do the backup
 rsync "${rsyncShellParams[@]}" -ahv${checksumFlag}${compressionFlag} --progress --timeout="${timeout}" --delete --no-W \
 	--partial-dir="${partialFolderName}" --link-dest="${bak1}/" --log-file="${logFile}" --exclude="${ownFolderName}/" \
-	--chmod=+r --exclude-from="${exclusionFilePath}" ${additionalFlags} "${src}/" "${remoteBak0}/"
+	--chmod=+r --include-from="${inclusionFilePath}" --exclude-from="${exclusionFilePath}" ${additionalFlags} \
+	"${src}/" "${remoteBak0}/"
 
 rsyncExitCode=${?}
 if [ ${rsyncExitCode} -eq 0 ] || [ ${rsyncExitCode} -eq 24 ]
