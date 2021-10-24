@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# v1.1.0-rc2
+# v1.1.0-rc3
 
 # Configuration variables (change as you wish)
 src="/"
@@ -17,6 +17,7 @@ logName="${logName:-rsync-incremental-backup_$(${dateCmd} +%Y-%m-%d)_$(${dateCmd
 ownFolderName="${ownFolderName:-.rsync-incremental-backup}"
 logFolderName="${logFolderName:-log}"
 additionalFlags="${additionalFlags:-}"
+maxLogFiles="${maxLogFiles:-20}"
 
 # Combinate previously defined variables for use (don't touch this)
 ownFolderPath="${HOME}/${ownFolderName}"
@@ -57,16 +58,27 @@ writeToLog "\\tto:    ${bak0}"
 # Prepare paths at destination
 mkdir -p "${dst}" "${logPath}"
 
-writeToLog "\\n[$(${dateCmd} -Is)] Old logs sending begins\\n"
+if [ ${maxLogFiles} -ne 0 ]
+then
+	writeToLog "\\n[$(${dateCmd} -Is)] Old logs sending begins\\n"
 
-# Send old pending logs to destination
-rsync -rhv --remove-source-files --exclude="${logName}" --log-file="${logFile}" \
-	"${tempLogPath}/" "${logPath}/"
+	# Send old pending logs to destination
+	rsync -rhv --remove-source-files --exclude="${logName}" --log-file="${logFile}" \
+		"${tempLogPath}/" "${logPath}/"
 
-writeToLog "\\n[$(${dateCmd} -Is)] Old logs sending finished"
+	writeToLog "\\n[$(${dateCmd} -Is)] Old logs sending finished"
+else
+	writeToLog "\\n[$(${dateCmd} -Is)] Logs sending disabled, deleting old local logs"
+
+	# Remove all logs except current one
+	ls -r ${tempLogPath}/*.log | tail +2 | xargs -r rm
+fi
+
+# Try to delete excess of log files, older first
+ls -r ${logPath}/*.log | tail +${maxLogFiles} | xargs -r rm
 
 # Rotate backups if last rsync succeeded ..
-if ([ ! -e "${rotationLockFilePath}" ])
+if [ ! -e "${rotationLockFilePath}" ]
 then
 	# .. and there is previous data
 	if [ -d "${bak0}" ]
@@ -123,7 +135,10 @@ else
 	rsyncFail=1
 fi
 
-# Send the complete log file to destination
-mv "${logFile}" "${logPath}"
+if [ ${maxLogFiles} -ne 0 ]
+then
+	# Send the complete log file to destination
+	mv "${logFile}" "${logPath}"
+fi
 
 exit "${rsyncFail}"
