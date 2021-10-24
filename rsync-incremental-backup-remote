@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# v1.1.0-rc4
+
 # Configuration variables (change as you wish)
 src="${1:-/path/to/source}"
 dst="${2:-/path/to/target}"
@@ -11,13 +13,17 @@ partialFolderName="${partialFolderName:-.rsync-partial}"
 rotationLockFileName="${rotationLockFileName:-.rsync-rotation-lock}"
 pathBakN="${pathBakN:-backup}"
 nameBakN="${nameBakN:-backup}"
-exclusionFileName="${exclusionFileName:-exclude.txt}"
 inclusionFileName="${inclusionFileName:-include.txt}"
+exclusionFileName="${exclusionFileName:-exclude.txt}"
 dateCmd="${dateCmd:-date}"
 logName="${logName:-rsync-incremental-backup_$(${dateCmd} +%Y-%m-%d)_$(${dateCmd} +%H-%M-%S).log}"
 ownFolderName="${ownFolderName:-.rsync-incremental-backup}"
 logFolderName="${logFolderName:-log}"
 interactiveMode="${interactiveMode:-no}"
+additionalFlags="${additionalFlags:-}"
+maxLogFiles="${maxLogFiles:-20}"
+useChecksum="${useChecksum:-1}"
+useCompression="${useCompression:-1}"
 
 # Combinate previously defined variables for use (don't touch this)
 ownFolderPath="${HOME}/${ownFolderName}"
@@ -32,6 +38,20 @@ rotationLockFilePath="${dst}/${rotationLockFileName}"
 logPath="${dst}/${pathBakN}/${logFolderName}"
 remoteLogPath="${remote}:${logPath}"
 logFile="${tempLogPath}/${logName}"
+
+if [ ${useChecksum} -eq 0 ]
+then
+	checksumFlag=""
+else
+	checksumFlag="c"
+fi
+
+if [ ${useCompression} -eq 0 ]
+then
+	compressionFlag=""
+else
+	compressionFlag="z"
+fi
 
 # Prepare own folder
 mkdir -p "${tempLogPath}"
@@ -60,6 +80,13 @@ done
 writeToLog "\\n[$(${dateCmd} -Is)] You are going to backup"
 writeToLog "\\tfrom:  ${src}"
 writeToLog "\\tto:    ${remoteBak0}"
+writeToLog "\\twith:"
+writeToLog "\\t\\tbackupDepth = ${backupDepth}"
+writeToLog "\\t\\tmaxLogFiles = ${maxLogFiles}"
+writeToLog "\\t\\tuseChecksum = ${useChecksum}"
+writeToLog "\\t\\tuseCompression = ${useCompression}"
+writeToLog "\\t\\additionalFlags = ${additionalFlags}"
+writeToLog "\\t\\tinteractiveMode = ${interactiveMode}"
 
 # Prepare ssh parameters for socket connection, reused by following sessions
 sshParams=(-o "ControlPath=\"${ownFolderPath}/ssh_connection_socket_%h_%p_%r\"" -o "ControlMaster=auto" \
@@ -84,13 +111,26 @@ fi
 # Prepare paths at destination
 ssh "${sshParams[@]}" "${remote}" "mkdir -p ${dst} ${logPath}"
 
-writeToLog "\\n[$(${dateCmd} -Is)] Old logs sending begins\\n"
+if [ ${maxLogFiles} -ne 0 ]
+then
+	writeToLog "\\n[$(${dateCmd} -Is)] Old logs sending begins\\n"
 
-# Send old pending logs to destination
-rsync "${rsyncShellParams[@]}" -rhvz --remove-source-files --exclude="${logName}" --log-file="${logFile}" \
-	"${tempLogPath}/" "${remoteLogPath}/"
+	# Send old pending logs to destination
+	rsync "${rsyncShellParams[@]}" -rhv${compressionFlag} --remove-source-files --exclude="${logName}" \
+		--log-file="${logFile}" "${tempLogPath}/" "${remoteLogPath}/"
 
-writeToLog "\\n[$(${dateCmd} -Is)] Old logs sending finished"
+	writeToLog "\\n[$(${dateCmd} -Is)] Old logs sending finished"
+else
+	writeToLog "\\n[$(${dateCmd} -Is)] Logs sending disabled, deleting old local logs"
+
+	# Remove all logs except current one
+	ls -r ${tempLogPath}/*.log | tail +2 | xargs -r rm
+fi
+
+writeToLog "\\n[$(${dateCmd} -Is)] Deleting excess of logs at target"
+
+# Try to delete excess of log files, older first
+ssh "${sshParams[@]}" "${remote}" "ls -r ${logPath}/*.log | tail +${maxLogFiles} | xargs -r rm"
 
 # Rotate backups if last rsync succeeded ..
 if (ssh "${sshParams[@]}" "${remote}" "[ ! -d ${partialFolderPath} ] && [ ! -e ${rotationLockFilePath} ]")
@@ -132,24 +172,33 @@ ssh "${sshParams[@]}" "${remote}" "touch ${rotationLockFilePath}"
 writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 
 # Do the backup
-if rsync "${rsyncShellParams[@]}" -achvz --progress --timeout="${timeout}" --delete --no-W \
-	--partial-dir="${partialFolderName}" --link-dest="${bak1}/" --log-file="${logFile}" --exclude="${ownFolderPath}" \
-	--chmod=+r --exclude-from="${exclusionFilePath}" --include-from="${inclusionFilePath}" "${src}/" "${remoteBak0}/"
+rsync "${rsyncShellParams[@]}" -ahv${checksumFlag}${compressionFlag} --progress --timeout="${timeout}" --delete --no-W \
+	--partial-dir="${partialFolderName}" --link-dest="${bak1}/" --log-file="${logFile}" --exclude="${ownFolderName}/" \
+	--chmod=+r --include-from="${inclusionFilePath}" --exclude-from="${exclusionFilePath}" ${additionalFlags} \
+	"${src}/" "${remoteBak0}/"
+
+rsyncExitCode=${?}
+if [ ${rsyncExitCode} -eq 0 ] || [ ${rsyncExitCode} -eq 24 ]
 then
-	writeToLog "\\n[$(${dateCmd} -Is)] Backup completed successfully\\n"
+	writeToLog "\\n[$(${dateCmd} -Is)] Backup completed successfully"
 
 	# Clear unneeded partials and lock file
 	ssh "${sshParams[@]}" "${remote}" "rm -rf ${partialFolderPath} ${rotationLockFilePath}"
 	rsyncFail=0
 else
-	writeToLog "\\n[$(${dateCmd} -Is)] Backup failed, try again later\\n"
+	writeToLog "\\n[$(${dateCmd} -Is)] Backup failed, try again later"
 	rsyncFail=1
 fi
 
-# Send the complete log file to destination
-if scp "${sshParams[@]}" "${logFile}" "${remoteLogPath}"
+if [ ${maxLogFiles} -ne 0 ]
 then
-	rm "${logFile}"
+	writeToLog "\\n[$(${dateCmd} -Is)] Sending current log to target"
+
+	# Send the complete log file to destination
+	if scp "${sshParams[@]}" "${logFile}" "${remoteLogPath}"
+	then
+		rm "${logFile}"
+	fi
 fi
 
 # Close master socket connection quietly
