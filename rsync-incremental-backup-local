@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# v1.1.0-rc3
+# v1.1.0-rc4
 
 # Configuration variables (change as you wish)
 src="${1:-/path/to/source}"
@@ -18,6 +18,7 @@ ownFolderName="${ownFolderName:-.rsync-incremental-backup}"
 logFolderName="${logFolderName:-log}"
 additionalFlags="${additionalFlags:-}"
 maxLogFiles="${maxLogFiles:-20}"
+useChecksum="${useChecksum:-1}"
 
 # Combinate previously defined variables for use (don't touch this)
 ownFolderPath="${HOME}/${ownFolderName}"
@@ -27,6 +28,13 @@ bak0="${dst}/${pathBak0}"
 rotationLockFilePath="${dst}/${rotationLockFileName}"
 logPath="${dst}/${pathBakN}/${logFolderName}"
 logFile="${tempLogPath}/${logName}"
+
+if [ ${useChecksum} -eq 0 ]
+then
+	checksumFlag=""
+else
+	checksumFlag="c"
+fi
 
 # Prepare own folder
 mkdir -p "${tempLogPath}"
@@ -117,7 +125,7 @@ touch "${rotationLockFilePath}"
 writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 
 # Do the backup
-rsync -achv --progress --timeout="${timeout}" --delete -W --link-dest="${bak1}/" \
+rsync -ahv${checksumFlag} --progress --timeout="${timeout}" --delete -W --link-dest="${bak1}/" \
 	--log-file="${logFile}" --exclude="${ownFolderName}/" --chmod=+r \
 	--exclude-from="${exclusionFilePath}" ${additionalFlags} "${src}/" "${bak0}/"
 
