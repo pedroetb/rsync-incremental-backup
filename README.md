@@ -33,8 +33,8 @@ You can set some configuration variables to customize the script:
 * `pathBakN`: Directory inside `dst` where the rest of backups are stored.
 * `nameBakN`: Name of incremental backup directories. An index will be added at the end to show how old they are.
 * `logName`: Name given to log file generated at backup.
-* `exclusionFileName`: Name given to the text file that contains exclusion patterns. You must create it inside directory defined by `ownFolderName`.
 * `inclusionFileName`: Name given to the text file that contains inclusion patterns. You must create it inside directory defined by `ownFolderName`.
+* `exclusionFileName`: Name given to the text file that contains exclusion patterns. You must create it inside directory defined by `ownFolderName`.
 * `ownFolderName`: Name given to folder inside user's home to hold configuration files and logs while backup is in progress.
 * `logFolderName`: Directory inside `dst` where the log files are stored.
 * `maxLogFiles`: Maximum number of log files to keep at `dst` (`20` by default). Set to `1` to keep only current log, set to `0` to disable copy of log files to `dst`. If copy of log files is disabled, last log file is left at local (`tempLogPath`).
@@ -145,8 +145,8 @@ Log files per backup operation will be stored at `<dst>/log`.
 * `--log-file`: log what we're doing to the specified file.
 * `--chmod`: affect file and/or directory permissions.
 * `--exclude`: exclude files matching pattern.
+* `--include-from`: get patterns from specified file to include matching files.
 * `--exclude-from`: same as `--exclude`, but getting patterns from specified file.
-* `--include-from`: get patterns from specified file.
 
 * Used only for remote backup:
   * `--no-W`: ensures that rsync's delta-transfer algorithm is used, so it never transfers whole files if they are present at target. Omit only when you have a high bandwidth to target, backup may be faster.
@@ -161,6 +161,14 @@ Log files per backup operation will be stored at `<dst>/log`.
 * Used only for log sending:
   * `-r`: recurse into directories.
   * `--remove-source-files`: sender removes synchronized files (non-dir).
+
+## Including and excluding files and directories
+
+Note that patterns you define at `--include-from` takes precedence over defined at `--exclude-from`, because the former is provided before to rsync command.
+
+If you include a file or directory, it cannot be excluded later (only first match applies).
+
+Check [Rsync filter rules](https://man7.org/linux/man-pages/man1/rsync.1.html#FILTER_RULES) for more information about which pattern syntax you can use in *include* and *exclude* files.
 
 ## License
 

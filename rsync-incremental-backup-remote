@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# v1.1.0-rc4
+# v1.1.0
 
 # Configuration variables (change as you wish)
 src="${1:-/path/to/source}"
@@ -28,8 +28,8 @@ useCompression="${useCompression:-1}"
 # Combinate previously defined variables for use (don't touch this)
 ownFolderPath="${HOME}/${ownFolderName}"
 tempLogPath="${ownFolderPath}/${remote}_${dst//[\/]/\\}"
-exclusionFilePath="${ownFolderPath}/${exclusionFileName}"
 inclusionFilePath="${ownFolderPath}/${inclusionFileName}"
+exclusionFilePath="${ownFolderPath}/${exclusionFileName}"
 remoteDst="${remote}:${dst}"
 bak0="${dst}/${pathBak0}"
 remoteBak0="${remoteDst}/${pathBak0}"
@@ -56,8 +56,8 @@ fi
 # Prepare own folder
 mkdir -p "${tempLogPath}"
 touch "${logFile}"
-touch "${exclusionFilePath}"
 touch "${inclusionFilePath}"
+touch "${exclusionFilePath}"
 
 writeToLog() {
 	echo -e "${1}" | tee -a "${logFile}"

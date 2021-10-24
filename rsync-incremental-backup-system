@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# v1.1.0-rc4
+# v1.1.0
 
 # Configuration variables (change as you wish)
 src="/"
