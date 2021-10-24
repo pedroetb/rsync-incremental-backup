@@ -77,6 +77,13 @@ done
 writeToLog "\\n[$(${dateCmd} -Is)] You are going to backup"
 writeToLog "\\tfrom:  ${src}"
 writeToLog "\\tto:    ${remoteBak0}"
+writeToLog "\\twith:"
+writeToLog "\\t\\tbackupDepth = ${backupDepth}"
+writeToLog "\\t\\tmaxLogFiles = ${maxLogFiles}"
+writeToLog "\\t\\tuseChecksum = ${useChecksum}"
+writeToLog "\\t\\tuseCompression = ${useCompression}"
+writeToLog "\\t\\additionalFlags = ${additionalFlags}"
+writeToLog "\\t\\tinteractiveMode = ${interactiveMode}"
 
 # Prepare ssh parameters for socket connection, reused by following sessions
 sshParams=(-o "ControlPath=\"${ownFolderPath}/ssh_connection_socket_%h_%p_%r\"" -o "ControlMaster=auto" \
@@ -116,6 +123,8 @@ else
 	# Remove all logs except current one
 	ls -r ${tempLogPath}/*.log | tail +2 | xargs -r rm
 fi
+
+writeToLog "\\n[$(${dateCmd} -Is)] Deleting excess of logs at target"
 
 # Try to delete excess of log files, older first
 ssh "${sshParams[@]}" "${remote}" "ls -r ${logPath}/*.log | tail +${maxLogFiles} | xargs -r rm"
@@ -167,18 +176,20 @@ rsync "${rsyncShellParams[@]}" -ahv${checksumFlag}${compressionFlag} --progress 
 rsyncExitCode=${?}
 if [ ${rsyncExitCode} -eq 0 ] || [ ${rsyncExitCode} -eq 24 ]
 then
-	writeToLog "\\n[$(${dateCmd} -Is)] Backup completed successfully\\n"
+	writeToLog "\\n[$(${dateCmd} -Is)] Backup completed successfully"
 
 	# Clear unneeded partials and lock file
 	ssh "${sshParams[@]}" "${remote}" "rm -rf ${partialFolderPath} ${rotationLockFilePath}"
 	rsyncFail=0
 else
-	writeToLog "\\n[$(${dateCmd} -Is)] Backup failed, try again later\\n"
+	writeToLog "\\n[$(${dateCmd} -Is)] Backup failed, try again later"
 	rsyncFail=1
 fi
 
 if [ ${maxLogFiles} -ne 0 ]
 then
+	writeToLog "\\n[$(${dateCmd} -Is)] Sending current log to target"
+
 	# Send the complete log file to destination
 	if scp "${sshParams[@]}" "${logFile}" "${remoteLogPath}"
 	then

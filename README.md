@@ -37,7 +37,7 @@ You can set some configuration variables to customize the script:
 * `ownFolderName`: Name given to folder inside user's home to hold configuration files and logs while backup is in progress.
 * `logFolderName`: Directory inside `dst` where the log files are stored.
 * `maxLogFiles`: Maximum number of log files to keep at `dst` (`20` by default). Set to `1` to keep only current log, set to `0` to disable copy of log files to `dst`. If copy of log files is disabled, last log file is left at local (`tempLogPath`).
-* `dateCmd`: Command to run for GNU `date`
+* `dateCmd`: Command to run for GNU `date`.
 * `interactiveMode`: Flag to allow password login, when set to `yes` (only for remote version).
 * `additionalFlags`: Additional parameters for rsync command, separated by space.
 * `useChecksum`: Flag to skip content based on checksum (`1`, default) or mod-time & size (`0`) (not applied to system version).
