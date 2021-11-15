@@ -75,6 +75,7 @@ You have to set, at least, `src` and `dst` (and `remote` in remote version) valu
 * `./rsync-incremental-backup-local /new/path/to/source /new/path/to/target` (`src` and `dst`).
 * `./rsync-incremental-backup-remote /new/path/to/source /new/path/to/target new_ssh_remote` (`src`, `dst` and `remote`).
 * `./rsync-incremental-backup-system /mnt/new/path/to/target` (only `dst`, `src` is always *root* on this case).
+* `./rsync-incremental-backup-remote-system /mnt/new/path/to/target new_ssh_remote` (only `dst` and `remote`, `src` is always *root* on this case).
 
 If you want to exclude some files or directories from backup, add their paths (relative to backup root) to the text file referenced by `exclusionFileName`.
 
