@@ -13,7 +13,6 @@ partialFolderName="${partialFolderName:-.rsync-partial}"
 rotationLockFileName="${rotationLockFileName:-.rsync-rotation-lock}"
 pathBakN="${pathBakN:-backup}"
 nameBakN="${nameBakN:-backup}"
-inclusionFileName="${inclusionFileName:-include.txt}"
 exclusionFileName="${exclusionFileName:-exclude.txt}"
 dateCmd="${dateCmd:-date}"
 logName="${logName:-rsync-incremental-backup_$(${dateCmd} +%Y-%m-%d)_$(${dateCmd} +%H-%M-%S).log}"
@@ -26,7 +25,6 @@ maxLogFiles="${maxLogFiles:-20}"
 # Combinate previously defined variables for use (don't touch this)
 ownFolderPath="${HOME}/${ownFolderName}"
 tempLogPath="${ownFolderPath}/${remote}_${dst//[\/]/\\}"
-inclusionFilePath="${ownFolderPath}/${inclusionFileName}"
 exclusionFilePath="${ownFolderPath}/${exclusionFileName}"
 remoteDst="${remote}:${dst}"
 bak0="${dst}/${pathBak0}"
@@ -40,7 +38,6 @@ logFile="${tempLogPath}/${logName}"
 # Prepare own folder
 mkdir -p "${tempLogPath}"
 touch "${logFile}"
-touch "${inclusionFilePath}"
 touch "${exclusionFilePath}"
 
 writeToLog() {
@@ -159,7 +156,7 @@ writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 rsync "${rsyncShellParams[@]}" -aAhv --progress --timeout="${timeout}" --delete -W \
 	--partial-dir="${partialFolderName}" --link-dest="${bak1}/" --log-file="${logFile}" --exclude="${ownFolderName}/" \
 	--exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} \
-	--include-from="${inclusionFilePath}" --exclude-from="${exclusionFilePath}" ${additionalFlags} \
+	--exclude-from="${exclusionFilePath}" ${additionalFlags} \
 	"${src}/" "${remoteBak0}/"
 
 rsyncExitCode=${?}
