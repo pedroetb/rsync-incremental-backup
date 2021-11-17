@@ -153,7 +153,7 @@ ssh "${sshParams[@]}" "${remote}" "touch ${rotationLockFilePath}"
 writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 
 # Do the backup
-rsync "${rsyncShellParams[@]}" -aAhv --numeric-ids --progress --timeout="${timeout}" --delete -W \
+rsync "${rsyncShellParams[@]}" -aAhv --numeric-ids -M--fake-super --progress --timeout="${timeout}" --delete -W \
 	--partial-dir="${partialFolderName}" --link-dest="${bak1}/" --log-file="${logFile}" --exclude="${ownFolderName}/" \
 	--exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} \
 	--exclude-from="${exclusionFilePath}" ${additionalFlags} \

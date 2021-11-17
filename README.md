@@ -77,6 +77,9 @@ You have to set, at least, `src` and `dst` (and `remote` in remote version) valu
 * `./rsync-incremental-backup-system /mnt/new/path/to/target` (only `dst`, `src` is always *root* on this case).
 * `./rsync-incremental-backup-remote-system /mnt/new/path/to/target new_ssh_remote` (only `dst` and `remote`, `src` is always *root* on this case).
 
+   To restore the files owner and a group from a backup, you must specify the `-M--fake-super` option. for example:
+   `sudo rsync -av -M--fake-super user@remote:/backup_path/* /`
+
 If you want to exclude some files or directories from backup, add their paths (relative to backup root) to the text file referenced by `exclusionFileName`.
 
 Once configured with your own variable values, you can simply run the script to begin the backup process.
@@ -162,6 +165,10 @@ Log files per backup operation will be stored at `<dst>/log`.
 * Used only for log sending:
   * `-r`: recurse into directories.
   * `--remove-source-files`: sender removes synchronized files (non-dir).
+
+* Used only for remote system backup:
+  * `--fake-super`: simulates super-user activities by saving/restoring the privileged attributes via special extended attributes that are attached to each file. The filesystem on the remote host must support extended attributes.
+  * `--numeric-ids`: transfer numeric group and user IDs rather than using user and group names and mapping them at both ends.
 
 ## Including and excluding files and directories
 
