@@ -69,7 +69,7 @@ writeToLog "\\twith:"
 writeToLog "\\t\\tbackupDepth = ${backupDepth}"
 writeToLog "\\t\\tmaxLogFiles = ${maxLogFiles}"
 writeToLog "\\t\\tuseChecksum = ${useChecksum}"
-writeToLog "\\t\\additionalFlags = ${additionalFlags}"
+writeToLog "\\t\\tadditionalFlags = ${additionalFlags}"
 
 # Prepare paths at destination
 mkdir -p "${dst}" "${logPath}"

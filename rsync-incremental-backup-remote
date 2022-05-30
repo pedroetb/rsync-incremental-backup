@@ -85,7 +85,7 @@ writeToLog "\\t\\tbackupDepth = ${backupDepth}"
 writeToLog "\\t\\tmaxLogFiles = ${maxLogFiles}"
 writeToLog "\\t\\tuseChecksum = ${useChecksum}"
 writeToLog "\\t\\tuseCompression = ${useCompression}"
-writeToLog "\\t\\additionalFlags = ${additionalFlags}"
+writeToLog "\\t\\tadditionalFlags = ${additionalFlags}"
 writeToLog "\\t\\tinteractiveMode = ${interactiveMode}"
 
 # Prepare ssh parameters for socket connection, reused by following sessions
