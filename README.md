@@ -24,7 +24,7 @@ You can set some configuration variables to customize the script:
 
 * `src`: Path to source directory. Backups will include it's content. May be a relative or absolute path. Overwritable by parameters.
 * `dst`: Path to target directory. Backups will be placed here. **Must** be an absolute path. Overwritable by parameters.
-* `remote`: *ssh_config* host name to connect to remote host (only for remote version). Overwritable by parameters.
+* `remote`: *ssh_config* host name to connect to remote host (only for remote versions). Overwritable by parameters.
 * `backupDepth`: Number of backups to keep. When limit is reached, the oldest get deleted.
 * `timeout`: Timeout to cancel backup process, if it's not responding.
 * `pathBak0`: Directory inside `dst` where the more recent backup is stored.
@@ -38,8 +38,8 @@ You can set some configuration variables to customize the script:
 * `ownFolderName`: Name given to folder inside user's home to hold configuration files and logs while backup is in progress.
 * `logFolderName`: Directory inside `dst` where the log files are stored.
 * `maxLogFiles`: Maximum number of log files to keep at `dst` (`20` by default). Set to `1` to keep only current log, set to `0` to disable copy of log files to `dst`. If copy of log files is disabled, last log file is left at local (`tempLogPath`).
-* `dateCmd`: Command to run for GNU `date`.
-* `interactiveMode`: Flag to allow password login, when set to `yes` (only for remote version).
+* `logDateCmd`: Command to run to generate timestamps for log output.
+* `interactiveMode`: Flag to allow password login, when set to `yes` (only for remote versions).
 * `additionalFlags`: Additional parameters for rsync command, separated by space.
 * `useChecksum`: Flag to skip content based on checksum (`1`, default) or mod-time & size (`0`) (not applied to system versions).
 * `useCompression`: Flag to allow using compression in transfer (`1`, default) or not (`0`) (only for remote versions).
@@ -51,7 +51,7 @@ In system backup, the original permissions are preserved by default.
 
 ## Usage
 
-### Setting up *ssh_config* (for remote version)
+### Setting up *ssh_config* (for remote versions)
 
 This script is meant to run without user intervention, so you need to authorize your source machine to access the remote machine.
 To accomplish this, you should use *ssh keys* to identify you and set a *ssh host* to use them properly.
@@ -70,7 +70,7 @@ This is useful for manual backup, when remote server requires authentication via
 
 ### Customizing configuration values
 
-You have to set, at least, `src` and `dst` (and `remote` in remote version) values, directly in the scripts or by positional parameters when running them:
+You have to set, at least, `src` and `dst` (and `remote` in remote versions) values, directly in the scripts or by positional parameters when running them:
 
 * `./rsync-incremental-backup-local /new/path/to/source /new/path/to/target` (`src` and `dst`).
 * `./rsync-incremental-backup-remote /new/path/to/source /new/path/to/target new_ssh_remote` (`src`, `dst` and `remote`).
