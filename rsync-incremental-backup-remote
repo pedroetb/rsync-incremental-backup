@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# v1.1.0
+# v1.2.0
 
 # Configuration variables (change as you wish)
 src="${1:-/path/to/source}"
