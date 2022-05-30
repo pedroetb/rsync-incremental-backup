@@ -75,7 +75,7 @@ You have to set, at least, `src` and `dst` (and `remote` in remote version) valu
 * `./rsync-incremental-backup-local /new/path/to/source /new/path/to/target` (`src` and `dst`).
 * `./rsync-incremental-backup-remote /new/path/to/source /new/path/to/target new_ssh_remote` (`src`, `dst` and `remote`).
 * `./rsync-incremental-backup-system /mnt/new/path/to/target` (only `dst`, `src` is always *root* on this case).
-* `./rsync-incremental-backup-remote-system /mnt/new/path/to/target new_ssh_remote` (only `dst` and `remote`, `src` is always *root* on this case).
+* `./rsync-incremental-backup-system-remote /mnt/new/path/to/target new_ssh_remote` (only `dst` and `remote`, `src` is always *root* on this case).
 
    To restore the files owner and a group from a backup, you must specify the `-M--fake-super` option. for example:
    `sudo rsync -av -M--fake-super user@remote:/backup_path/* /`
@@ -166,7 +166,7 @@ Log files per backup operation will be stored at `<dst>/log`.
   * `-r`: recurse into directories.
   * `--remove-source-files`: sender removes synchronized files (non-dir).
 
-* Used only for remote system backup:
+* Used only for system remote backup:
   * `--fake-super`: simulates super-user activities by saving/restoring the privileged attributes via special extended attributes that are attached to each file. The filesystem on the remote host must support extended attributes.
   * `--numeric-ids`: transfer numeric group and user IDs rather than using user and group names and mapping them at both ends.
 
