@@ -75,6 +75,11 @@ You have to set, at least, `src` and `dst` (and `remote` in remote version) valu
 * `./rsync-incremental-backup-local /new/path/to/source /new/path/to/target` (`src` and `dst`).
 * `./rsync-incremental-backup-remote /new/path/to/source /new/path/to/target new_ssh_remote` (`src`, `dst` and `remote`).
 * `./rsync-incremental-backup-system /mnt/new/path/to/target` (only `dst`, `src` is always *root* on this case).
+* `./rsync-incremental-backup-system-remote /mnt/new/path/to/target new_ssh_remote` (only `dst` and `remote`, `src` is always *root* on this case).
+
+  To restore the files ownership (user and group) from a backup, you must specify the `-M--fake-super` option. For example:
+
+  `sudo rsync -av -M--fake-super user@remote:/backup_path/* /`
 
 If you want to exclude some files or directories from backup, add their paths (relative to backup root) to the text file referenced by `exclusionFileName`.
 
@@ -152,11 +157,15 @@ Log files per backup operation will be stored at `<dst>/log`.
   * `--no-W`: ensures that rsync's delta-transfer algorithm is used, so it never transfers whole files if they are present at target. Omit only when you have a high bandwidth to target, backup may be faster.
   * `--partial-dir`: put a partially transferred file into specified directory, instead of using a hidden file in the original path of transferred file. Mandatory for allow partial transfers and avoid misleads with incomplete/corrupt files.
 
-* Used only for local backups:
+* Used only for local backup:
   * `-W`: ignores rsync's delta-transfer algorithm, so it always transfers whole files. When you have a high bandwidth to target (local filesystem or LAN), backup may be faster.
 
-* Used only for system backup:
+* Used only for system (and system-remote) backups:
   * `-A`: preserve ACLs (implies -p).
+
+* Used only for system remote backup:
+  * `-M--fake-super`: simulates super-user activities at remote side, by saving/restoring the privileged attributes via special extended attributes, that are attached to each file. The filesystem on the remote host must support extended attributes. The `-M` (same as `--remote-option`) prefix is used to apply the option only to remote side of the transfer.
+  * `--numeric-ids`: transfer numeric values for user and group IDs, rather than using user and group names and mapping them at both ends.
 
 * Used only for log sending:
   * `-r`: recurse into directories.
