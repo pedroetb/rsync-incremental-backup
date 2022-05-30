@@ -135,6 +135,8 @@ then
 
 	# Clear unneeded partials and lock file
 	rm -rf "${rotationLockFilePath}"
+	# Update backup directory modification time
+	touch -m "${bak0}"
 	rsyncFail=0
 else
 	writeToLog "\\n[$(${logDateCmd})] Backup failed, try again later"

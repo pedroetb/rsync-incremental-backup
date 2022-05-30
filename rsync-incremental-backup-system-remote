@@ -175,6 +175,8 @@ then
 
 	# Clear unneeded partials and lock file
 	ssh "${sshParams[@]}" "${remote}" "rm -rf ${partialFolderPath} ${rotationLockFilePath}"
+	# Update backup directory modification time
+	ssh "${sshParams[@]}" "${remote}" "touch -m ${bak0}"
 	rsyncFail=0
 else
 	writeToLog "\\n[$(${logDateCmd})] Backup failed, try again later"
