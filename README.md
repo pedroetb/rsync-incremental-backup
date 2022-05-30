@@ -41,8 +41,8 @@ You can set some configuration variables to customize the script:
 * `dateCmd`: Command to run for GNU `date`.
 * `interactiveMode`: Flag to allow password login, when set to `yes` (only for remote version).
 * `additionalFlags`: Additional parameters for rsync command, separated by space.
-* `useChecksum`: Flag to skip content based on checksum (`1`, default) or mod-time & size (`0`) (not applied to system version).
-* `useCompression`: Flag to allow using compression in transfer (`1`, default) or not (`0`) (only for remote version).
+* `useChecksum`: Flag to skip content based on checksum (`1`, default) or mod-time & size (`0`) (not applied to system versions).
+* `useCompression`: Flag to allow using compression in transfer (`1`, default) or not (`0`) (only for remote versions).
 
 All files and folders in backup (local and remote only) get read permissions for all users, since a non-readable backup is useless.
 If you are worried about permissions, you can add a security layer on backup access level (FTP accounts protected with passwords, for example).
@@ -153,11 +153,11 @@ Log files per backup operation will be stored at `<dst>/log`.
 * `--include-from`: get patterns from specified file to include matching files.
 * `--exclude-from`: same as `--exclude`, but getting patterns from specified file.
 
-* Used only for remote backup:
+* Used only for remote backups:
   * `--no-W`: ensures that rsync's delta-transfer algorithm is used, so it never transfers whole files if they are present at target. Omit only when you have a high bandwidth to target, backup may be faster.
   * `--partial-dir`: put a partially transferred file into specified directory, instead of using a hidden file in the original path of transferred file. Mandatory for allow partial transfers and avoid misleads with incomplete/corrupt files.
 
-* Used only for local backup:
+* Used only for local backups:
   * `-W`: ignores rsync's delta-transfer algorithm, so it always transfers whole files. When you have a high bandwidth to target (local filesystem or LAN), backup may be faster.
 
 * Used only for system (and system-remote) backups:

@@ -21,6 +21,7 @@ logFolderName="${logFolderName:-log}"
 interactiveMode="${interactiveMode:-no}"
 additionalFlags="${additionalFlags:-}"
 maxLogFiles="${maxLogFiles:-20}"
+useCompression="${useCompression:-1}"
 
 # Combinate previously defined variables for use (don't touch this)
 ownFolderPath="${HOME}/${ownFolderName}"
@@ -34,6 +35,13 @@ rotationLockFilePath="${dst}/${rotationLockFileName}"
 logPath="${dst}/${pathBakN}/${logFolderName}"
 remoteLogPath="${remote}:${logPath}"
 logFile="${tempLogPath}/${logName}"
+
+if [ ${useCompression} -eq 0 ]
+then
+	compressionFlag=""
+else
+	compressionFlag="z"
+fi
 
 # Prepare own folder
 mkdir -p "${tempLogPath}"
@@ -97,7 +105,7 @@ then
 	writeToLog "\\n[$(${dateCmd} -Is)] Old logs sending begins\\n"
 
 	# Send old pending logs to destination
-	rsync "${rsyncShellParams[@]}" -rhv --remove-source-files --exclude="${logName}" \
+	rsync "${rsyncShellParams[@]}" -rhv${compressionFlag} --remove-source-files --exclude="${logName}" \
 		--log-file="${logFile}" "${tempLogPath}/" "${remoteLogPath}/"
 
 	writeToLog "\\n[$(${dateCmd} -Is)] Old logs sending finished"
@@ -153,8 +161,9 @@ ssh "${sshParams[@]}" "${remote}" "touch ${rotationLockFilePath}"
 writeToLog "[$(${dateCmd} -Is)] Backup begins\\n"
 
 # Do the backup
-rsync "${rsyncShellParams[@]}" -aAhv --numeric-ids -M--fake-super --progress --timeout="${timeout}" --delete -W \
-	--partial-dir="${partialFolderName}" --link-dest="${bak1}/" --log-file="${logFile}" --exclude="${ownFolderName}/" \
+rsync "${rsyncShellParams[@]}" -aAhv${compressionFlag} --numeric-ids -M--fake-super --progress --timeout="${timeout}" \
+	--delete --no-W --partial-dir="${partialFolderName}" --link-dest="${bak1}/" --log-file="${logFile}" \
+	--exclude="${ownFolderName}/" \
 	--exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} \
 	--exclude-from="${exclusionFilePath}" ${additionalFlags} \
 	"${src}/" "${remoteBak0}/"
