@@ -130,7 +130,7 @@ fi
 writeToLog "\\n[$(${logDateCmd})] Deleting excess of logs at target"
 
 # Try to delete excess of log files, older first
-ssh "${sshParams[@]}" "${remote}" "ls -r ${logPath}/*.log | tail +${maxLogFiles} | xargs -r rm"
+ssh "${sshParams[@]}" "${remote}" "[ -d ${logPath} ] && ls -r ${logPath}/*.log | tail +${maxLogFiles} | xargs -r rm"
 
 # Rotate backups if last rsync succeeded ..
 if (ssh "${sshParams[@]}" "${remote}" "[ ! -d ${partialFolderPath} ] && [ ! -e ${rotationLockFilePath} ]")
