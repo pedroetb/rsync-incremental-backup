@@ -75,13 +75,13 @@ else
 	writeToLog "\\n[$(${logDateCmd})] Logs sending disabled, deleting old local logs"
 
 	# Remove all logs except current one
-	ls -r ${tempLogPath}/*.log | tail +2 | xargs -r rm
+	ls -r ${tempLogPath}/*.log | tail -n +2 | xargs -r rm
 fi
 
 writeToLog "\\n[$(${logDateCmd})] Deleting excess of logs at target"
 
 # Try to delete excess of log files, older first
-[ -d ${logPath} ] && ls -r ${logPath}/*.log | tail +${maxLogFiles} | xargs -r rm
+[ -d ${logPath} ] && ls -r ${logPath}/*.log | tail -n +${maxLogFiles} | xargs -r rm
 
 # Rotate backups if last rsync succeeded ..
 if [ ! -e "${rotationLockFilePath}" ]
